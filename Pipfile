@@ -1,0 +1,17 @@
+[[source]]
+
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+
+[packages]
+
+cffi = "==1.11.2"
+py = "==1.4.34"
+pycparser = "==2.18"
+smbus-cffi = "*"
+pytest = "*"
+
+
+[dev-packages]

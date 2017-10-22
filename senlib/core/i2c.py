@@ -11,7 +11,7 @@ class ControllerInterface(object):
 
     @property
     def name(self):
-        raise  NotImplementedError
+        raise NotImplementedError
 
     def close(self):
         raise NotImplementedError
@@ -93,7 +93,7 @@ class Controller(ControllerInterface):
         return self._smbus.read_byte_data(addr, cmd)
 
     def write_byte_data(self, addr, cmd, val):
-       self._smbus.write_byte_data(addr, cmd, val)
+        self._smbus.write_byte_data(addr, cmd, val)
 
     def read_word_data(self, addr, cmd):
         return self._smbus.read_word_data(addr, cmd)

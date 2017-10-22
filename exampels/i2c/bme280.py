@@ -4,7 +4,7 @@ from senlib.i2c.sensors.bmex import BME280
 import time
 
 if __name__ == '__main__':
-    i2c_ctrl = Controller()
+    i2c_ctrl = Controller(bus=1)
     bmp = BME280(i2c_ctrl=i2c_ctrl)
     time.sleep(0.2)
     data = bmp.measure()

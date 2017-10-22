@@ -1,0 +1,5 @@
+cffi==1.11.2
+py==1.4.34
+pycparser==2.18
+pytest==3.2.3
+smbus-cffi==0.5.1

@@ -56,15 +56,9 @@ class Controller(ControllerInterface):
         self._smbus = None
         if SMBus is not None:
             self._smbus = SMBus(bus)
-        elif SMBus == 'smbus':
+        else:
             import smbus
             self._smbus = smbus.SMBus(bus)
-        elif SMBus == 'smbus2':
-            import smbus2
-            self._smbus = smbus2.SMBus(bus)
-        else:
-            import smbus2
-            self._smbus = smbus2.SMBus(bus)
 
     @property
     def name(self):

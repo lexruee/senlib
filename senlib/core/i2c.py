@@ -78,7 +78,7 @@ class Controller(ControllerInterface):
         return self
 
     def read_byte(self, addr):
-        self._smbus.read_byte(addr)
+        return self._smbus.read_byte(addr)
 
     def write_byte(self, addr, val):
         self._smbus.write_byte(addr, val)

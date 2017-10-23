@@ -5,8 +5,8 @@ import time
 
 if __name__ == '__main__':
     i2c_ctrl = Controller(bus=1)
-    bmp = BME280(i2c_ctrl=i2c_ctrl)
+    sensor = BME280(i2c_ctrl=i2c_ctrl)
     time.sleep(0.2)
-    data = bmp.measure()
+    data = sensor.measure()
     print(data)
     time.sleep(0.2)

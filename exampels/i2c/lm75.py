@@ -5,8 +5,8 @@ import time
 
 if __name__ == '__main__':
     i2c_ctrl = Controller(bus=1)
-    lm = LM75(i2c_ctrl=i2c_ctrl)
+    sensor = LM75(i2c_ctrl=i2c_ctrl)
     time.sleep(0.2)
-    data = lm.measure()
+    data = sensor.measure()
     print(data)
     time.sleep(0.2)

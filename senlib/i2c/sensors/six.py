@@ -20,6 +20,7 @@ class SI7021(I2CSensor):
 
     CMD_MEASURE_HUM = 0xF5
     CMD_MEASURE_TEMP = 0xF3
+    CMD_LAST_TEMP = 0xE0
 
     def __init__(self, i2c_ctrl, addr=ADDR):
         super(SI7021, self).__init__(i2c_ctrl, addr)
@@ -35,25 +36,26 @@ class SI7021(I2CSensor):
 
     def read_temperature(self):
         self._i2c_ctrl.write_byte(self.addr, self.CMD_MEASURE_TEMP)
-        time.sleep(0.25)
+        time.sleep(0.3)
         msb = self._i2c_ctrl.read_byte(self.addr)
         lsb = self._i2c_ctrl.read_byte(self.addr)
-        temp_code = (msb << 8) | lsb
-        temp = 175.72 * temp_code/65536.0 - 46.85
+        data = (msb << 8) | lsb
+        temp = 175.72 * data/65536.0 - 46.85
         return temp
 
     def read_humidity(self):
         self._i2c_ctrl.write_byte(self.addr, self.CMD_MEASURE_HUM)
-        time.sleep(0.25)
+        time.sleep(0.3)
         msb = self._i2c_ctrl.read_byte(self.addr)
         lsb = self._i2c_ctrl.read_byte(self.addr)
-        rh_code = (msb << 8) | lsb
-        hum = 125 * rh_code/65536.0 - 6
+        data = (msb << 8) | lsb
+        hum = 125 * data/65536.0 - 6
         return hum
 
     def measure(self):
-        self._temperature = self.read_temperature()
         self._humidity = self.read_humidity()
+        time.sleep(0.3)
+        self._temperature = self.read_temperature()
 
         return {
             'temperature': self._temperature,

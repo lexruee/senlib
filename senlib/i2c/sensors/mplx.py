@@ -90,3 +90,112 @@ class MPL115A2(I2CSensor):
             'pressure': self._pressure,
             'temperature': self._temperature
         }
+
+
+class MPL3115A2(I2CSensor):
+    """
+    This is a driver implementation for the MPL3115A2 sensor
+    for use with Raspberry Pi computers.
+    """
+
+    DRIVER_NAME = 'mpl3115a2'
+
+    ADDR = 0x60
+    DEFAULT_ADDR = ADDR
+
+    CTRL_REG1 = 0x26
+    PT_DATA_CFG = 0x13
+
+    MODE_BAROMETER = 0
+    MODE_ALTIMETER = 1
+    RAW = 0
+    OS = 0x7
+    RST = 0
+    OST = 0
+    SBYB = 1
+
+    DREM = 1
+    PDEFE = 1
+    TDEFE = 1
+
+    def __init__(self, i2c_ctrl, addr=DEFAULT_ADDR):
+        super(MPL3115A2, self).__init__(i2c_ctrl, addr)
+        self._mode = self.MODE_BAROMETER
+        self._raw = self.RAW
+        self._os = self.OS
+        self._rst = self.RST
+        self._ost = self.OST
+        self._sbyb = self.SBYB
+
+        settings = self._mode << 7
+        settings |= (self._raw << 6)
+        settings |= (self._os << 3)
+        settings |= (self._rst << 2)
+        settings |= (self._ost << 1)
+        settings |= self._sbyb
+
+        # enable data flags in PT_DATA_CFG
+        pt_data_cfg = (self.DREM << 2)
+        pt_data_cfg |= (self.PDEFE << 1)
+        pt_data_cfg |= self.TDEFE
+        self._i2c_ctrl.write_byte_data(self.addr, self.PT_DATA_CFG, pt_data_cfg)
+
+        # set settings
+        self._i2c_ctrl.write_byte_data(self.addr, self.CTRL_REG1, settings)
+
+    @classmethod
+    def driver_name(cls):
+        return cls.DRIVER_NAME
+
+    @classmethod
+    def default_addr(cls):
+        return cls.DEFAULT_ADDR
+
+    def _wait(self):
+        while True: # busy waiting
+            sta = self._i2c_ctrl.read_byte_data(self.addr, 0x00)
+            if sta & 0x08: # check if data is ready
+                break
+            time.sleep(0.3)
+
+    def _read_pressure_data(self, wait=False):
+        if wait:
+            self._wait()
+
+        # the pressure value is representated as a Q18.2 fixed point
+        p_msb = self._i2c_ctrl.read_byte_data(self.addr, 0x01)
+        p_csb = self._i2c_ctrl.read_byte_data(self.addr, 0x02)
+        p_lsb = self._i2c_ctrl.read_byte_data(self.addr, 0x03)
+        p_data = (p_msb << 16 | (p_csb << 8) | p_lsb) >> 4
+        return p_data / 4
+
+    def _read_temperature_data(self, wait=False):
+        if wait:
+            self._wait()
+
+        # the temperature value is representated as a Q8.4 fixed point
+        t_msb = self._i2c_ctrl.read_byte_data(self.addr, 0x04)
+        t_lsb = self._i2c_ctrl.read_byte_data(self.addr, 0x05)
+        t_data = ((t_msb << 8) | t_lsb) >> 4
+        return t_data / 16
+
+    def read_pressure(self):
+        return self._read_pressure_data(True)
+
+    def read_temperature(self):
+        return self._read_temperature_data(True)
+
+    def pressure(self):
+        return self._pressure
+
+    def temperature(self):
+        return self._temperature
+
+    def measure(self):
+        self._pressure = self._read_pressure_data(True)
+        self._temperature = self._read_temperature_data(False)
+
+        return {
+            'pressure': self._pressure,
+            'temperature': self._temperature
+        }

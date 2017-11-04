@@ -19,6 +19,7 @@ _SENSORS = {
         'lm75': lmx.LM75,
         'mcp9808': mcpx.MCP9808,
         'mpl115a2': mplx.MPL115A2,
+        'mpl3115a2': mplx.MPL3115A2,
         'si7021': six.SI7021
 }
 

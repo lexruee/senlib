@@ -5,6 +5,7 @@ __all__ = ()
 
 from .sensors import bmex
 from .sensors import bmpx
+from .sensors import hdcx
 from .sensors import lmx
 from .sensors import mcpx
 from .sensors import mplx
@@ -16,6 +17,7 @@ _SENSORS = {
         'bmp085': bmpx.BMP085,
         'bmp180': bmpx.BMP180,
         'bmp280': bmpx.BMP280,
+        'hdc1008': hdcx.HDC1008,
         'lm75': lmx.LM75,
         'mcp9808': mcpx.MCP9808,
         'mpl115a2': mplx.MPL115A2,

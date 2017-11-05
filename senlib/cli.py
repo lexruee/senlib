@@ -22,12 +22,12 @@ def main():
         import logging
         logger = logging.getLogger('senlib')
         logging.basicConfig(level=logging.DEBUG)
-
+    
+    from senlib.i2c import DriverNotFound
+    from senlib.i2c import get_sensor
+    from collections import OrderedDict
+    
     try:
-        from senlib.i2c import get_sensor
-        from senlib.i2c import DriverNotFound
-        from collections import OrderedDict
-
         addr = args.addr
         if addr:
             addr = int(addr, 0)

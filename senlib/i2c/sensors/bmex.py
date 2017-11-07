@@ -3,6 +3,8 @@
 __author__ = 'Alexander Rüedlinger'
 __all__ = ('BME280')
 
+import logging
+logger = logging.getLogger('bmex')
 import struct
 from senlib.core.i2c import Sensor as I2CSensor
 
@@ -35,7 +37,7 @@ class BME280(I2CSensor):
 
     def __init__(self, i2c_ctrl, addr=DEFAULT_ADDR):
         super(BME280, self).__init__(i2c_ctrl, addr)
-
+        logger.debug('create BME280(addr=%s) object', addr)
         self.dig_T1 = self.dig_T2 = self.dig_T3 = 0
         self.dig_P1 = self.dig_P2 = self.dig_P3 = self.dig_P4 = self.dig_P5 = self.dig_P6 = self.dig_P7 \
             = self.dig_P8 = self.dig_P9 = 0
@@ -65,6 +67,7 @@ class BME280(I2CSensor):
         return cls.DEFAULT_ADDR
 
     def _set_meas(self):
+        logger.debug('configure temperature and pressure osrs')
         settings = 0
         settings |= (self.osrs_t << 5)
         settings |= (self.osrs_p << 2)
@@ -72,6 +75,7 @@ class BME280(I2CSensor):
         self._i2c_ctrl.write_byte_data(self.addr, self.REG_CTRL_MEAS, settings)
 
     def _set_hum(self):
+        logger.debug('configure humidity osrs')
         settings = 0
         settings |= self.osrs_h
         self._i2c_ctrl.write_byte_data(self.addr, self.REG_CTRL_HUM, settings)
@@ -81,12 +85,14 @@ class BME280(I2CSensor):
         self._set_meas()
 
     def _set_config(self):
+        logger.debug('configure sensor')
         config = 0
         config |= (self.t_sb << 5)
         config |= (self.filter << 2)
         self._i2c_ctrl.write_byte_data(self.addr, self.REG_CONFIG, config)
 
     def _read_calibration_data(self):
+        logger.debug('read calibration data')
         dig_88_A1 = self._i2c_ctrl.read_i2c_block_data(self.addr, 0x88, 26)
         dig_88_A1 = struct.unpack('<HhhHhhhhhhhhBB', bytearray(dig_88_A1))
         self.dig_T1, self.dig_T2, self.dig_T3, self.dig_P1, self.dig_P2, self.dig_P3, self.dig_P4, self.dig_P5, \
@@ -100,15 +106,25 @@ class BME280(I2CSensor):
         self.dig_H5 = (e6_sign << 4) | (dig_e1_e7[4] >> 4)
         self.dig_H6 = struct.unpack('<b', bytes([dig_e1_e7[6]]))[0]
 
+        logger.debug('T1=%s, T2=%s, T3=%s', self.dig_T1, self.dig_T2,
+                self.dig_T3)
+        logger.debug('P1=%s, P2=%s, P3=%s, P4=%s, P5=%s, P6=%s, P7=%s, P8=%s, P9=%s', 
+                self.dig_P1, self.dig_P2, self.dig_P3, self.dig_P4, self.dig_P5, 
+                self.dig_P6, self.dig_P7, self.dig_P8, self.dig_P9)
+        logger.debug('H1=%s, H2=%s, H3=%s, H4=%s, H5=%s, H6=%s', self.dig_H1, 
+                self.dig_H2, self.dig_H3, self.dig_H4, self.dig_H5, self.dig_H6)
+ 
     def _read_raw_sensor_data(self):
+        logger.debug('read pressure data')
         press_msb, press_lsb, press_xlsb = self._i2c_ctrl.read_i2c_block_data(self.addr, self.REG_PRESS, 3)
+        logger.debug('read temperature data')
         temp_msb, temp_lsb, temp_xlsb = self._i2c_ctrl.read_i2c_block_data(self.addr, self.REG_TEMP, 3)
+        logger.debug('read humidity data')
         hum_msb, hum_lsb = self._i2c_ctrl.read_i2c_block_data(self.addr, self.REG_HUM, 2)
 
         adc_p = (press_msb << 12) | (press_lsb << 4) | (press_xlsb >> 4)
         adc_t = (temp_msb << 12) | (temp_lsb << 4) | (temp_xlsb >> 4)
         adc_h = (hum_msb << 8) | hum_lsb
-
         return adc_p, adc_t, adc_h
 
     def _compensate_temperature(self, adc_t):

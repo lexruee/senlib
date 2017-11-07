@@ -23,7 +23,8 @@ def main():
 
     parser.add_argument('-a', '--address', type=str, dest='addr', 
         help='Set I2C address.')
-    parser.add_argument('-b', '--bus', type=int, dest='bus', help='Set I2C bus.')
+    parser.add_argument('-b', '--bus', type=int, dest='bus', help='Set I2C bus.', 
+            default=1)
     parser.add_argument('-d', '--debug', dest='debug', help='Start debug mode.',
             action='store_true')
   
@@ -47,30 +48,33 @@ def main():
             help='Set HTTP port.', default=8080)
     args = parser.parse_args()
 
-    if args.debug:
-        import logging
-        logger = logging.getLogger('senlib')
-        logging.basicConfig(level=logging.DEBUG)
-    
+    import logging
     from senlib.i2c import DriverNotFound
-    from senlib.i2c import get_sensor
-    
-    try:
-        addr = args.addr
-        if addr:
-            addr = int(addr, 0)
+    from senlib.i2c import get_sensor_driver
+    from senlib.core.i2c import LogController
+    from senlib.core.i2c import Controller
 
+   
+    try:
+        addr = int(args.addr, 0) if args.addr else None
+        args.output_file = open(args.output, 'w+') if args.output else None
+
+        i2c_ctrl = None
+        if args.debug:
+            logger = logging.getLogger('senlib')
+            logging.basicConfig(level=logging.DEBUG)
+            i2c_ctrl = LogController(bus=args.bus)
+        else:
+            i2c_ctrl = Controller(bus=args.bus)
+     
         sensor = None
         if args.mock:
             from senlib.mock import Sensor
             sensor = Sensor()
         else:
-            sensor = get_sensor(name=args.sensor, bus=args.bus, addr=addr)
-        
-        args.output_file = None
-        if args.output:
-            args.output_file = open(args.output, 'w+')
-       
+            driver_class = get_sensor_driver(name=args.sensor)
+            sensor = driver_class(i2c_ctrl, addr or driver_class.default_addr())
+
         if args.poll:
             import asyncio
             loop = asyncio.get_event_loop()

@@ -28,10 +28,11 @@ def main():
     parser.add_argument('-d', '--debug', dest='debug', help='Start debug mode.',
             action='store_true')
   
-    parser.add_argument('-p', '--poll', dest='poll', help='Start polling loop.',
-            action='store_true')
+    parser.add_argument('-p', '--poll', type=int, dest='poll', nargs='?', 
+            action='store', help='Start polling loop.', default=1)
     parser.add_argument('-i', '--interval', type=float, dest='interval', 
-            help='Set polling interval.', default=2)
+            help='Set sampling interval.', default=2)
+
     parser.add_argument('-f', '--format', type=str, dest='format', 
             help='Set output format.', choices=['json', 'xml', 'txt'], 
             default='txt')
@@ -75,16 +76,23 @@ def main():
             driver_class = get_sensor_driver(name=args.sensor)
             sensor = driver_class(i2c_ctrl, addr or driver_class.default_addr())
 
-        if args.poll:
+        if args.http:
+            from senlib.http import Server
+            server = Server(sensor)
+            server.run(args.http_address, args.http_port)
+        else:
             import asyncio
             loop = asyncio.get_event_loop()
-            def callback():
+            def callback(num):
                 data = sensor.measure()
                 print_output(args, sensor)
-                loop.call_later(args.interval, callback)
+                if num != args.poll:
+                    loop.call_later(args.interval, callback, num+1)
+                else:
+                    loop.stop()
 
             try:
-                callback()   
+                callback(1)
                 loop.run_forever()
             except KeyboardInterrupt:
                 pass
@@ -93,12 +101,6 @@ def main():
                 if args.output_file:
                     args.output_file.close()
 
-        elif args.http:
-            from senlib.http import Server
-            server = Server(sensor)
-            server.run(args.http_address, args.http_port)
-        else:
-            print_output(args, sensor)
     except DriverNotFound as e:
         print(e)
 

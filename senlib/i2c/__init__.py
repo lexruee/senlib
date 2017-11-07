@@ -29,12 +29,16 @@ class DriverNotFound(Exception):
     pass
 
 
-def get_sensor(name, bus, addr):
+def get_sensor_driver(name):
     if name.lower() in _SENSORS:
         driver_class = _SENSORS[name]
-        i2c_ctrl = Controller(bus or 1)
-        sensor = driver_class(i2c_ctrl, addr or driver_class.DEFAULT_ADDR)
-        return sensor
+        return driver_class
     else:
        raise DriverNotFound("Driver {} not found!".format(name))
+
+def get_sensor(name, bus, addr):
+    driver_class = get_sensor_driver(name)
+    i2c_ctrl = Controller(bus or 1)
+    sensor = driver_class(i2c_ctrl, addr or driver_class.DEFAULT_ADDR)
+    return sensor
 

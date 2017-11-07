@@ -85,7 +85,7 @@ def main():
             loop = asyncio.get_event_loop()
             def callback(num):
                 data = sensor.measure()
-                print_output(args, sensor)
+                generate_output(args, sensor)
                 if num != args.poll:
                     loop.call_later(args.interval, callback, num+1)
                 else:
@@ -104,7 +104,7 @@ def main():
     except DriverNotFound as e:
         print(e)
 
-def print_output(args, sensor):
+def generate_output(args, sensor):
     data = OrderedDict()
     data['name'] = args.sensor.lower()
     data['timestamp'] = str(datetime.now())
@@ -115,22 +115,22 @@ def print_output(args, sensor):
 
     out = ''
     if args.format == 'json':
-        out = print_json(args, data)
+        out = generate_json(args, data)
     elif args.format == 'xml':
-        out = print_xml(args, data)
+        out = generate_xml(args, data)
     else:
-        out = print_txt(args, data)
+        out = generate_text(args, data)
 
     print(out)
     if args.output_file:
         args.output_file.write(out)
 
-def print_json(args, data):
+def generate_json(args, data):
     indent = 4 if args.pretty_print else None
     json_data = json.dumps(data, indent=indent)
     return json_data
 
-def print_xml(args, data):
+def generate_xml(args, data):
     xml = dicttoxml(data, attr_type=False, custom_root='sensor')
     if args.pretty_print:
         dom = parseString(xml)
@@ -138,7 +138,7 @@ def print_xml(args, data):
     else:
         return xml
 
-def print_txt(args, data):
+def generate_text(args, data):
     out = "sensor: {}\n".format(data['name'])
     out += "timestamp: {}\n".format(data['timestamp'])
     for key, value in data['measurements'].items():

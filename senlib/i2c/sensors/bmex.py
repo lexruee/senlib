@@ -35,6 +35,13 @@ class BME280(I2CSensor):
     REG_CTRL_MEAS = 0xF4
     REG_CTRL_HUM = 0xF2
 
+    MAX_TEMPERATURE = 85
+    MIN_TEMPERATURE = -40
+    MAX_PRESSURE = 110000.0
+    MIN_PRESSURE = 30000.0
+    MAX_HUMIDITY = 100.0
+    MIN_HUMIDITY = 0.0
+
     def __init__(self, i2c_ctrl, addr=DEFAULT_ADDR):
         super(BME280, self).__init__(i2c_ctrl, addr)
         logger.debug('create BME280(addr=%s) object', addr)
@@ -133,8 +140,14 @@ class BME280(I2CSensor):
         var2 = ((UT / 131072.0 - self.dig_T1 / 8192.0) * (
         UT / 131072.0 - self.dig_T1 / 8192.0)) * float(self.dig_T3)
         self.t_fine = int(var1 + var2)
-        temp = (var1 + var2) / 5120.0
-        return temp
+        temperature = (var1 + var2) / 5120.0
+
+        if temperature < self.MIN_TEMPERATURE:
+            return self.MIN_TEMPERATURE
+        elif temperature > self.MAX_TEMPERATURE:
+            return self.MAX_TEMPERATURE
+        else:
+            return temperature
 
     def _compensate_pressure(self, adc_p):
         var1 = self.t_fine / 2.0 - 64000.0
@@ -150,20 +163,27 @@ class BME280(I2CSensor):
         p = ((p - var2 / 4096.0) * 6250.0) / var1
         var1 = self.dig_P9 * p * p / 2147483648.0
         var2 = p * self.dig_P8 / 32768.0
-        p = p + (var1 + var2 + self.dig_P7) / 16.0
-        return p
+        pressure = p + (var1 + var2 + self.dig_P7) / 16.0
+
+        if pressure < self.MIN_PRESSURE:
+            return self.MIN_PRESSURE
+        elif pressure > self.MAX_PRESSURE:
+            return self.MAX_PRESSURE
+        else:
+            return pressure
 
     def _compensate_humidity(self, adc_h):
         h = self.t_fine - 76800.0
         h = (adc_h - (self.dig_H4 * 64.0 + self.dig_H5 / 16384.0 * h)) * (
         self.dig_H2 / 65536.0 * (1.0 + self.dig_H6 / 67108864.0 * h * (
         1.0 + self.dig_H3 / 67108864.0 * h)))
-        h = h * (1.0 - self.dig_H1 * h / 524288.0)
-        if h > 100:
-            h = 100
-        elif h < 0:
-            h = 0
-        return h
+        humidity = h * (1.0 - self.dig_H1 * h / 524288.0)
+
+        if humidity > self.MAX_HUMIDITY:
+            return self.MAX_HUMIDITY
+        elif humidity < self.MIN_HUMIDITY:
+            return self.MIN_HUMIDITY
+        return humidity
 
     def read_temperature(self):
         adc_p, adc_t, adc_h = self._read_raw_sensor_data()

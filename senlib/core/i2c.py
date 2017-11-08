@@ -3,6 +3,7 @@
 __author__ = 'Alexander Rüedlinger'
 __all__ = ('Controller', 'LogController')
 
+from collections import deque
 import logging
 logger = logging.getLogger('i2c')
 
@@ -194,6 +195,56 @@ class LogController(ControllerInterface):
         self._log_data.append(msg)
         logger.debug(msg)
         self._smbus.write_i2c_block_data(addr, cmd, vals)
+
+
+class MockController(ControllerInterface):
+    """
+    A helper class for mocking the Linux I2C/SMBus interface.
+    """
+
+    def __init__(self, bus=1, SMBus=None, read_data=None):
+        self._read_data = deque(read_data or [])
+
+    @property
+    def name(self):
+        return 'i2c-{}'.format(self._bus)
+
+    @property
+    def bus(self):
+        return self._bus
+
+    def close(self):
+        pass
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        pass
+
+    def __enter__(self):
+        return self
+
+    def read_byte(self, addr):
+        return self._read_data.popleft()
+
+    def write_byte(self, addr, val):
+        pass
+
+    def read_byte_data(self, addr, cmd):
+        return self._read_data.pop()
+
+    def write_byte_data(self, addr, cmd, val):
+        pass
+
+    def read_word_data(self, addr, cmd):
+        return self._read_data.popleft()
+
+    def write_word_data(self, addr, cmd, val):
+        pass
+
+    def read_i2c_block_data(self, addr, cmd, nbytes):
+        return self._read_data.popleft()
+
+    def write_i2c_block_data(self, addr, cmd, vals):
+        pass
 
 
 class Device(object):

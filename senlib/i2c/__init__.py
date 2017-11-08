@@ -3,6 +3,7 @@
 __author__ = 'Alexander Rüedlinger'
 __all__ = ()
 
+from .sensors import amx
 from .sensors import bmex
 from .sensors import bmpx
 from .sensors import hdcx
@@ -13,6 +14,7 @@ from .sensors import six
 from ..core.i2c import Controller
 
 _SENSORS = {
+        'am2315': amx.AM2315,
         'bme280': bmex.BME280,
         'bmp085': bmpx.BMP085,
         'bmp180': bmpx.BMP180,

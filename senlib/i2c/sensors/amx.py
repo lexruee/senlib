@@ -115,3 +115,14 @@ class AM2315(I2CSensor):
         return self._humidity
 
 
+class AM2321(AM2315):
+
+    DRIVER_NAME = 'am2321'
+
+    ADDR = 0x5c
+    DEFAULT_ADDR = ADDR
+
+    def __init__(self, i2c_ctrl, addr=DEFAULT_ADDR):
+        super(AM2321, self).__init__(i2c_ctrl, addr)
+        logger.debug('create AM2321(addr=%s) object', addr)
+

@@ -84,15 +84,15 @@ def main():
             import asyncio
             loop = asyncio.get_event_loop()
             def callback(num):
-                data = sensor.measure()
-                generate_output(args, sensor)
+                sensor_data = sensor.measure()
+                generate_output(args, sensor, sensor_data)
                 if num != args.poll:
                     loop.call_later(args.interval, callback, num+1)
                 else:
                     loop.stop()
 
             try:
-                callback(1)
+                loop.call_soon(callback, 1)
                 loop.run_forever()
             except KeyboardInterrupt:
                 pass
@@ -104,12 +104,11 @@ def main():
     except DriverNotFound as e:
         print(e)
 
-def generate_output(args, sensor):
+def generate_output(args, sensor, sensor_data):
     data = OrderedDict()
     data['name'] = args.sensor.lower()
     data['timestamp'] = str(datetime.now())
     data['measurements'] = {}
-    sensor_data = sensor.measure()
     for key, value in sorted(sensor_data.items()):
        data['measurements'][key] = value
 

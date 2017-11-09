@@ -13,8 +13,8 @@ I2C_DATA_IN = [
 
 
 def test_create_am2315():
-    i2c_ctrl = MockController(read_data=I2C_DATA_IN)
-    sensor = AM2315(i2c_ctrl=i2c_ctrl)
+    bus = MockController(read_data=I2C_DATA_IN)
+    sensor = AM2315(bus=bus)
     assert sensor
     return sensor
 
@@ -36,8 +36,8 @@ def test_measure_am2315():
     assert sensor_data['humidity'] == 49.9
 
 def test_create_am2321():
-    i2c_ctrl = MockController(read_data=I2C_DATA_IN)
-    sensor = AM2321(i2c_ctrl=i2c_ctrl)
+    bus = MockController(read_data=I2C_DATA_IN)
+    sensor = AM2321(bus=bus)
     assert sensor
     return sensor
 

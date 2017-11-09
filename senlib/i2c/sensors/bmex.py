@@ -42,8 +42,8 @@ class BME280(I2CSensor):
     MAX_HUMIDITY = 100.0
     MIN_HUMIDITY = 0.0
 
-    def __init__(self, i2c_ctrl, addr=DEFAULT_ADDR):
-        super(BME280, self).__init__(i2c_ctrl, addr)
+    def __init__(self, bus, addr=DEFAULT_ADDR):
+        super(BME280, self).__init__(bus, addr)
         logger.debug('create BME280(addr=%s) object', addr)
         self.dig_T1 = self.dig_T2 = self.dig_T3 = 0
         self.dig_P1 = self.dig_P2 = self.dig_P3 = self.dig_P4 = self.dig_P5 = self.dig_P6 = self.dig_P7 \
@@ -79,13 +79,13 @@ class BME280(I2CSensor):
         settings |= (self.osrs_t << 5)
         settings |= (self.osrs_p << 2)
         settings |= self.power_mode
-        self._i2c_ctrl.write_byte_data(self.addr, self.REG_CTRL_MEAS, settings)
+        self._bus.write_byte_data(self.addr, self.REG_CTRL_MEAS, settings)
 
     def _set_hum(self):
         logger.debug('configure humidity osrs')
         settings = 0
         settings |= self.osrs_h
-        self._i2c_ctrl.write_byte_data(self.addr, self.REG_CTRL_HUM, settings)
+        self._bus.write_byte_data(self.addr, self.REG_CTRL_HUM, settings)
 
     def _set_meas_and_hum(self):
         self._set_hum()
@@ -96,16 +96,16 @@ class BME280(I2CSensor):
         config = 0
         config |= (self.t_sb << 5)
         config |= (self.filter << 2)
-        self._i2c_ctrl.write_byte_data(self.addr, self.REG_CONFIG, config)
+        self._bus.write_byte_data(self.addr, self.REG_CONFIG, config)
 
     def _read_calibration_data(self):
         logger.debug('read calibration data')
-        dig_88_A1 = self._i2c_ctrl.read_i2c_block_data(self.addr, 0x88, 26)
+        dig_88_A1 = self._bus.read_i2c_block_data(self.addr, 0x88, 26)
         dig_88_A1 = struct.unpack('<HhhHhhhhhhhhBB', bytearray(dig_88_A1))
         self.dig_T1, self.dig_T2, self.dig_T3, self.dig_P1, self.dig_P2, self.dig_P3, self.dig_P4, self.dig_P5, \
         self.dig_P6, self.dig_P7, self.dig_P8, self.dig_P9, _, self.dig_H1 = dig_88_A1
 
-        dig_e1_e7 = self._i2c_ctrl.read_i2c_block_data(self.addr, 0xE1, 7)
+        dig_e1_e7 = self._bus.read_i2c_block_data(self.addr, 0xE1, 7)
         self.dig_H2, self.dig_H3 = struct.unpack('<hB', bytearray(dig_e1_e7[:3]))
         e4_sign = struct.unpack('<b', bytes([dig_e1_e7[3]]))[0]
         self.dig_H4 = (e4_sign << 4) | (dig_e1_e7[4] & 0xF)
@@ -123,11 +123,11 @@ class BME280(I2CSensor):
  
     def _read_raw_sensor_data(self):
         logger.debug('read pressure data')
-        press_msb, press_lsb, press_xlsb = self._i2c_ctrl.read_i2c_block_data(self.addr, self.REG_PRESS, 3)
+        press_msb, press_lsb, press_xlsb = self._bus.read_i2c_block_data(self.addr, self.REG_PRESS, 3)
         logger.debug('read temperature data')
-        temp_msb, temp_lsb, temp_xlsb = self._i2c_ctrl.read_i2c_block_data(self.addr, self.REG_TEMP, 3)
+        temp_msb, temp_lsb, temp_xlsb = self._bus.read_i2c_block_data(self.addr, self.REG_TEMP, 3)
         logger.debug('read humidity data')
-        hum_msb, hum_lsb = self._i2c_ctrl.read_i2c_block_data(self.addr, self.REG_HUM, 2)
+        hum_msb, hum_lsb = self._bus.read_i2c_block_data(self.addr, self.REG_HUM, 2)
 
         adc_p = (press_msb << 12) | (press_lsb << 4) | (press_xlsb >> 4)
         adc_t = (temp_msb << 12) | (temp_lsb << 4) | (temp_xlsb >> 4)

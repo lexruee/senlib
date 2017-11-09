@@ -24,8 +24,8 @@ class MCP9808(I2CSensor):
     REG_DEVICE_ID = 0x07
     REG_RES = 0x08
 
-    def __init__(self, i2c_ctrl, addr=DEFAULT_ADDR):
-        super(MCP9808, self).__init__(i2c_ctrl, addr)
+    def __init__(self, bus, addr=DEFAULT_ADDR):
+        super(MCP9808, self).__init__(bus, addr)
         self.id = self._read_device_id()
         self._temperature = 0.0
 
@@ -38,10 +38,10 @@ class MCP9808(I2CSensor):
         return cls.DEFAULT_ADDR
 
     def _read_device_id(self):
-        return self._i2c_ctrl.read_byte_data(self.addr, self.REG_DEVICE_ID)
+        return self._bus.read_byte_data(self.addr, self.REG_DEVICE_ID)
 
     def read_temperature(self):
-        data = self._i2c_ctrl.read_word_data(self.addr, self.REG_TMP)
+        data = self._bus.read_word_data(self.addr, self.REG_TMP)
         msb = data & 0x00FF
         lsb = (data & 0xFF00) >> 8
         word = (msb << 8) | lsb

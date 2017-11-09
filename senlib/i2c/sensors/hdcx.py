@@ -32,8 +32,8 @@ class HDC1008(I2CSensor):
     TRES = 0 # 14 bit resolution
     HRES = 0 # 14 bit resolution
 
-    def __init__(self, i2c_ctrl, addr=DEFAULT_ADDR):
-        super(HDC1008, self).__init__(i2c_ctrl, addr)
+    def __init__(self, bus, addr=DEFAULT_ADDR):
+        super(HDC1008, self).__init__(bus, addr)
         self._temperature = self._humidity = 0.0
         settings = 0
         settings |= (self.RST << 15)
@@ -42,7 +42,7 @@ class HDC1008(I2CSensor):
         settings |= (self.BTST << 11)
         settings |= (self.TRES << 10)
         settings |= (self.HRES << 8)
-        self._i2c_ctrl.write_word_data(self.addr, self.REG_CONFIG, settings)
+        self._bus.write_word_data(self.addr, self.REG_CONFIG, settings)
 
     @classmethod
     def driver_name(cls):
@@ -53,17 +53,17 @@ class HDC1008(I2CSensor):
         return cls.DEFAULT_ADDR
 
     def _trigger_temperature_measurement(self):
-        self._i2c_ctrl.write_byte(self.addr, self.REG_TMP)
+        self._bus.write_byte(self.addr, self.REG_TMP)
         time.sleep(0.015)
 
     def _trigger_humidity_measurement(self):
-        self._i2c_ctrl.write_byte(self.addr, self.REG_HUM)
+        self._bus.write_byte(self.addr, self.REG_HUM)
         time.sleep(0.015)
 
     def read_temperature(self):
         self._trigger_temperature_measurement()
-        msb = self._i2c_ctrl.read_byte(self.addr)
-        lsb = self._i2c_ctrl.read_byte(self.addr)
+        msb = self._bus.read_byte(self.addr)
+        lsb = self._bus.read_byte(self.addr)
         tdata = (msb << 8) | lsb
         temp = (tdata / 65536.0) * 165 - 40
         return temp
@@ -73,8 +73,8 @@ class HDC1008(I2CSensor):
 
     def read_humidity(self):
         self._trigger_humidity_measurement()
-        msb = self._i2c_ctrl.read_byte(self.addr)
-        lsb = self._i2c_ctrl.read_byte(self.addr)
+        msb = self._bus.read_byte(self.addr)
+        lsb = self._bus.read_byte(self.addr)
         hdata = (msb << 8) | lsb
         hum = (hdata / 65536.0) * 100
         return hum

@@ -240,17 +240,17 @@ class MockController(SMBusInterface, I2CInterface):
 
 class Device(object):
 
-    def __init__(self, i2c_ctrl, addr):
-        self._i2c_ctrl = i2c_ctrl
+    def __init__(self, bus, addr):
+        self._bus = bus
         self._addr = addr
 
     @property
     def name(self):
-        return self.create_device_id(self.driver_name, self.i2c_ctrl.name, self.addr)
+        return self.create_device_id(self.driver_name, self._bus.name, self.addr)
 
     @property
-    def i2c_ctrl(self):
-        return self._i2c_ctrl
+    def bus(self):
+        return self._bus
 
     @classmethod
     def driver_name(cls):
@@ -265,9 +265,9 @@ class Device(object):
         return self._addr
 
     @staticmethod
-    def create_device_id(driver_name, i2ctrl_name, addr):
+    def create_device_id(driver_name, bus_name, addr):
         # return a string such as /i2c-1/bmp280@0x77
-        return '/{}/{}@0x{:x}'.format(i2ctrl_name, driver_name, addr)
+        return '/{}/{}@0x{:x}'.format(bus_name, driver_name, addr)
 
     def close(self):
         self._i2c_ctrl.close()
@@ -279,7 +279,8 @@ class Device(object):
         return self
 
     def __str__(self):
-        return '<{}(ctrl={},addr=0x{:x},name={})>'.format(self.__class__.__name__, self._i2c_ctrl.name, self._addr, self.name)
+        return '<{}(ctrl={},addr=0x{:x},name={})>'.format(self.__class__.__name__,
+            self._bus.name, self._addr, self.name)
 
     __repr__ = __str__
 
@@ -289,8 +290,8 @@ class Sensor(Device):
     Basic generic interface of the supported sensors.
     """
 
-    def __init__(self, i2c_ctrl, addr):
-        Device.__init__(self, i2c_ctrl, addr)
+    def __init__(self, bus, addr):
+        super(Sensor, self).__init__(bus, addr)
 
     def measure(self):
         return {}

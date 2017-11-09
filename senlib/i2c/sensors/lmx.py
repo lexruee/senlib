@@ -22,8 +22,8 @@ class LM75(I2CSensor):
     REG_THYST = 0x02
     REG_TOS = 0x03
 
-    def __init__(self, i2c_ctrl, addr=ADDR):
-        super(LM75, self).__init__(i2c_ctrl, addr)
+    def __init__(self, bus, addr=ADDR):
+        super(LM75, self).__init__(bus, addr)
         self._temperature = 0.0
 
     @classmethod
@@ -35,7 +35,7 @@ class LM75(I2CSensor):
         return cls.DEFAULT_ADDR
 
     def read_temperature(self):
-        data = self._i2c_ctrl.read_word_data(self.addr, self.REG_TMP)
+        data = self._bus.read_word_data(self.addr, self.REG_TMP)
         msb = data & 0x00ff
         lsb = (data & 0xff00) >> 8
         t0 = msb

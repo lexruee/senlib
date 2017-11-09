@@ -44,8 +44,8 @@ class BMP085(I2CSensor):
     REG_SOF = 0xE0  # reset
     REG_ID = 0xD0
 
-    def __init__(self, i2c_ctrl, addr=DEFAULT_ADDR):
-        super(BMP085, self).__init__(i2c_ctrl, addr)
+    def __init__(self, bus, addr=DEFAULT_ADDR):
+        super(BMP085, self).__init__(bus, addr)
         logger.debug('create %s(addr=%s) object', self.DRIVER_NAME.upper(), addr)
         self.dig_AC1 = self.dig_AC2 = self.dig_AC3 = self.dig_AC4 = self.dig_AC5 = self.dig_AC6 = self.dig_B1 = \
             self.dig_B2 = self.dig_MB = self.dig_MC = self.dig_MD = 0
@@ -67,7 +67,7 @@ class BMP085(I2CSensor):
 
     def _read_id(self):
         logger.debug('read device id')
-        return self._i2c_ctrl.read_byte_data(self.addr, self.REG_ID)
+        return self._bus.read_byte_data(self.addr, self.REG_ID)
 
     def _compensate_temperature(self, UT):
         X1 = ((UT - self.dig_AC6) * self.dig_AC5) >> 15
@@ -117,15 +117,15 @@ class BMP085(I2CSensor):
 
     def _read_raw_temperature(self):
         logger.debug('read temperature data')
-        self._i2c_ctrl.write_byte_data(self.addr, self.REG_CTRL_MEAS, self.CTRL_READ_TEMP)
+        self._bus.write_byte_data(self.addr, self.REG_CTRL_MEAS, self.CTRL_READ_TEMP)
         time.sleep(0.005)
-        msb, lsb = self._i2c_ctrl.read_i2c_block_data(self.addr, self.REG_OUT_MSB, 2)
+        msb, lsb = self._bus.read_i2c_block_data(self.addr, self.REG_OUT_MSB, 2)
         adc_t = (msb << 8) | lsb
         return adc_t
 
     def _read_raw_pressure(self):
         logger.debug('read pressure data')
-        self._i2c_ctrl.write_byte_data(self.addr, self.REG_CTRL_MEAS, self.CTRL_READ_PRESS + (self.mode << 6))
+        self._bus.write_byte_data(self.addr, self.REG_CTRL_MEAS, self.CTRL_READ_PRESS + (self.mode << 6))
 
         if self.mode == self.MODE_LOW:
             time.sleep(0.005)
@@ -136,13 +136,13 @@ class BMP085(I2CSensor):
         else:
             time.sleep(0.008)
 
-        msb, lsb, xlsb = self._i2c_ctrl.read_i2c_block_data(self.addr, self.REG_OUT_MSB, 3)
+        msb, lsb, xlsb = self._bus.read_i2c_block_data(self.addr, self.REG_OUT_MSB, 3)
         adc_p = ((msb << 16) + (lsb << 8) + xlsb) >> (8 - self.mode)
         return adc_p
 
     def _read_calibration_data(self):
         logger.debug('read calibration data')
-        dig_AC1_MD = self._i2c_ctrl.read_i2c_block_data(self.addr, self.REG_AC1, 22)
+        dig_AC1_MD = self._bus.read_i2c_block_data(self.addr, self.REG_AC1, 22)
         dig_AC1_MD = struct.unpack('>hhhHHHhhhhh',  bytearray(dig_AC1_MD))
         self.dig_AC1, self.dig_AC2, self.dig_AC3, self.dig_AC4, self.dig_AC5, self.dig_AC6, self.dig_B1, self.dig_B2, \
             self.dig_MB, self.dig_MC, self.dig_MD = dig_AC1_MD
@@ -170,8 +170,8 @@ class BMP180(BMP085):
 
     DRIVER_NAME = 'bmp180'
 
-    def __init__(self, i2c_ctrl, addr=BMP085.DEFAULT_ADDR):
-        super(BMP180, self).__init__(i2c_ctrl, addr)
+    def __init__(self, bus, addr=BMP085.DEFAULT_ADDR):
+        super(BMP180, self).__init__(bus, addr)
 
 
 class BMP280(I2CSensor):
@@ -192,8 +192,8 @@ class BMP280(I2CSensor):
     REG_CONFIG = 0xF5
     REG_CTRL_MEAS = 0xF4
 
-    def __init__(self, i2c_ctrl, addr=DEFAULT_ADDR):
-        super(BMP280, self).__init__(i2c_ctrl, addr)
+    def __init__(self, bus, addr=DEFAULT_ADDR):
+        super(BMP280, self).__init__(bus, addr)
         logger.debug('create BMP280(addr=%s) object', addr)
         self.dig_T1 = self.dig_T2 = self.dig_T3 = 0
         self.dig_P1 = self.dig_P2 = self.dig_P3 = self.dig_P4 = self.dig_P5 = self.dig_P6 = self.dig_P7 \
@@ -228,7 +228,7 @@ class BMP280(I2CSensor):
         settings |= (self.osrs_t << 5)
         settings |= (self.osrs_p << 2)
         settings |= self.power_mode
-        self._i2c_ctrl.write_byte_data(self.addr, self.REG_CTRL_MEAS, settings)
+        self._bus.write_byte_data(self.addr, self.REG_CTRL_MEAS, settings)
 
     def _set_settings(self):
         self._set_meas()
@@ -238,11 +238,11 @@ class BMP280(I2CSensor):
         config = 0
         config |= (self.t_sb << 5)
         config |= (self.filter << 2)
-        self._i2c_ctrl.write_byte_data(self.addr, self.REG_CONFIG, config)
+        self._bus.write_byte_data(self.addr, self.REG_CONFIG, config)
 
     def _read_calibration_data(self):
         logger.debug('read calibration data')
-        dig_88_A1 = self._i2c_ctrl.read_i2c_block_data(self.addr, 0x88, 26)
+        dig_88_A1 = self._bus.read_i2c_block_data(self.addr, 0x88, 26)
         dig_88_A1 = struct.unpack('<HhhHhhhhhhhhBB', bytearray(dig_88_A1))
         self.dig_T1, self.dig_T2, self.dig_T3, self.dig_P1, self.dig_P2, self.dig_P3, self.dig_P4, self.dig_P5, \
         self.dig_P6, self.dig_P7, self.dig_P8, self.dig_P9, _, self.dig_H1 = dig_88_A1
@@ -256,9 +256,9 @@ class BMP280(I2CSensor):
  
     def _read_raw_sensor_data(self):
         logger.debug('read pressure data')
-        press_msb, press_lsb, press_xlsb = self._i2c_ctrl.read_i2c_block_data(self.addr, self.REG_PRESS, 3)
+        press_msb, press_lsb, press_xlsb = self._bus.read_i2c_block_data(self.addr, self.REG_PRESS, 3)
         logger.debug('read temperature data')
-        temp_msb, temp_lsb, temp_xlsb = self._i2c_ctrl.read_i2c_block_data(self.addr, self.REG_TEMP, 3)
+        temp_msb, temp_lsb, temp_xlsb = self._bus.read_i2c_block_data(self.addr, self.REG_TEMP, 3)
 
         adc_p = (press_msb << 12) | (press_lsb << 4) | (press_xlsb >> 4)
         adc_t = (temp_msb << 12) | (temp_lsb << 4) | (temp_xlsb >> 4)

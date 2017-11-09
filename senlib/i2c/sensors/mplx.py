@@ -27,8 +27,8 @@ class MPL115A2(I2CSensor):
     REG_B2 = 0x08
     REG_C12 = 0x0A
 
-    def __init__(self, i2c_ctrl, addr=DEFAULT_ADDR):
-        super(MPL115A2, self).__init__(i2c_ctrl, addr)
+    def __init__(self, bus, addr=DEFAULT_ADDR):
+        super(MPL115A2, self).__init__(bus, addr)
         self.dig_A0 = self.dig_B1 = self.dig_B2 = self.dig_C12 = 0.0
 
         self._pressure = self._temperature = 0.0
@@ -44,7 +44,7 @@ class MPL115A2(I2CSensor):
         return cls.DEFAULT_ADDR
 
     def _read_coefficients(self):
-        calib_data = self._i2c_ctrl.read_i2c_block_data(self.addr, self.REG_A0, 8)
+        calib_data = self._bus.read_i2c_block_data(self.addr, self.REG_A0, 8)
         self.dig_A0, self.dig_B1, self.dig_B2, self.dig_C12 = struct.unpack('>hhhh', bytearray(calib_data))
         self.dig_A0 /= 8.0
         self.dig_B1 /= 8192.0
@@ -52,16 +52,16 @@ class MPL115A2(I2CSensor):
         self.dig_C12 /= 16777216.0
 
     def _read_adc_t(self):
-        msb, lsb = self._i2c_ctrl.read_i2c_block_data(self.addr, self.REG_TADC, 2)
+        msb, lsb = self._bus.read_i2c_block_data(self.addr, self.REG_TADC, 2)
         adc_t = ((msb << 8) | lsb) >> 6
         return adc_t
 
     def read_pressure(self):
-        self._i2c_ctrl.write_byte_data(self.addr, self.CMD_CONVERT, 0x00)
+        self._bus.write_byte_data(self.addr, self.CMD_CONVERT, 0x00)
         time.sleep(5/1000.0)
 
         adc_t = self._read_adc_t()
-        msb, lsb = self._i2c_ctrl.read_i2c_block_data(self.addr, self.REG_PADC, 2)
+        msb, lsb = self._bus.read_i2c_block_data(self.addr, self.REG_PADC, 2)
         adc_p = ((msb << 8) | lsb) >> 6
         p_comp = self.dig_A0 + (self.dig_B1 + self.dig_C12 * adc_t) * adc_p + self.dig_B2 * adc_t
         return ((p_comp / 15.737) + 50.0) * 1000
@@ -69,7 +69,7 @@ class MPL115A2(I2CSensor):
     def read_temperature(self):
         # black magic temperature formula: http://forums.adafruit.com/viewtopic.php?f=25&t=34787
         # thx @park
-        self._i2c_ctrl.write_byte_data(self.addr, self.CMD_CONVERT, 0x00)
+        self._bus.write_byte_data(self.addr, self.CMD_CONVERT, 0x00)
         time.sleep(5/1000.0)
 
         adc_t = self._read_adc_t()
@@ -118,8 +118,8 @@ class MPL3115A2(I2CSensor):
     PDEFE = 1
     TDEFE = 1
 
-    def __init__(self, i2c_ctrl, addr=DEFAULT_ADDR):
-        super(MPL3115A2, self).__init__(i2c_ctrl, addr)
+    def __init__(self, bus, addr=DEFAULT_ADDR):
+        super(MPL3115A2, self).__init__(bus, addr)
         self._mode = self.MODE_BAROMETER
         self._raw = self.RAW
         self._os = self.OS
@@ -138,10 +138,10 @@ class MPL3115A2(I2CSensor):
         pt_data_cfg = (self.DREM << 2)
         pt_data_cfg |= (self.PDEFE << 1)
         pt_data_cfg |= self.TDEFE
-        self._i2c_ctrl.write_byte_data(self.addr, self.PT_DATA_CFG, pt_data_cfg)
+        self._bus.write_byte_data(self.addr, self.PT_DATA_CFG, pt_data_cfg)
 
         # set settings
-        self._i2c_ctrl.write_byte_data(self.addr, self.CTRL_REG1, settings)
+        self._bus.write_byte_data(self.addr, self.CTRL_REG1, settings)
 
     @classmethod
     def driver_name(cls):
@@ -153,7 +153,7 @@ class MPL3115A2(I2CSensor):
 
     def _wait(self):
         while True: # busy waiting
-            sta = self._i2c_ctrl.read_byte_data(self.addr, 0x00)
+            sta = self._bus.read_byte_data(self.addr, 0x00)
             if sta & 0x08: # check if data is ready
                 break
             time.sleep(0.3)
@@ -163,9 +163,9 @@ class MPL3115A2(I2CSensor):
             self._wait()
 
         # the pressure value is representated as a Q18.2 fixed point
-        p_msb = self._i2c_ctrl.read_byte_data(self.addr, 0x01)
-        p_csb = self._i2c_ctrl.read_byte_data(self.addr, 0x02)
-        p_lsb = self._i2c_ctrl.read_byte_data(self.addr, 0x03)
+        p_msb = self._bus.read_byte_data(self.addr, 0x01)
+        p_csb = self._bus.read_byte_data(self.addr, 0x02)
+        p_lsb = self._bus.read_byte_data(self.addr, 0x03)
         p_data = (p_msb << 16 | (p_csb << 8) | p_lsb) >> 4
         return p_data / 4
 
@@ -174,8 +174,8 @@ class MPL3115A2(I2CSensor):
             self._wait()
 
         # the temperature value is representated as a Q8.4 fixed point
-        t_msb = self._i2c_ctrl.read_byte_data(self.addr, 0x04)
-        t_lsb = self._i2c_ctrl.read_byte_data(self.addr, 0x05)
+        t_msb = self._bus.read_byte_data(self.addr, 0x04)
+        t_lsb = self._bus.read_byte_data(self.addr, 0x05)
         t_data = ((t_msb << 8) | t_lsb) >> 4
         return t_data / 16
 

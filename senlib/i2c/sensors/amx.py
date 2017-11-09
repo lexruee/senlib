@@ -26,8 +26,8 @@ class AM2315(I2CSensor):
 
     MIN_SAMPLING_PERIOD = 2
 
-    def __init__(self, i2c_ctrl, addr=DEFAULT_ADDR):
-        super(AM2315, self).__init__(i2c_ctrl, addr)
+    def __init__(self, bus, addr=DEFAULT_ADDR):
+        super(AM2315, self).__init__(bus, addr)
         logger.debug('create AM2315(addr=%s) object', addr)
         self._temperature = self._humidity = 0.0
         self._wakeup()
@@ -36,7 +36,7 @@ class AM2315(I2CSensor):
     def _wakeup(self):
         logger.debug('call AM2315._wakeup()')
         try:
-            self._i2c_ctrl.write_byte(self.addr, 0x00)
+            self._bus.write_byte(self.addr, 0x00)
             logger.debug('AM2315 is awake')
         except OSError as e:
             logger.debug('AM2315 was not awake, but should be awake now')
@@ -60,9 +60,9 @@ class AM2315(I2CSensor):
         self._wakeup()
 
         try:
-            self._i2c_ctrl.write_i2c_block_data(self.addr, self.FC_READ_REG, [0x00, 0x04])
+            self._bus.write_i2c_block_data(self.addr, self.FC_READ_REG, [0x00, 0x04])
             time.sleep(0.0015)
-            vals = self._i2c_ctrl.read_i2c_block_data(self.addr, self.FC_READ_REG, 8)
+            vals = self._bus.read_i2c_block_data(self.addr, self.FC_READ_REG, 8)
             fn_code, nbytes, hum_msb, hum_lsb, temp_msb, temp_lsb, crc_lsb, crc_msb = vals
 
             hum = (hum_msb << 8) | hum_lsb
@@ -122,7 +122,7 @@ class AM2321(AM2315):
     ADDR = 0x5c
     DEFAULT_ADDR = ADDR
 
-    def __init__(self, i2c_ctrl, addr=DEFAULT_ADDR):
-        super(AM2321, self).__init__(i2c_ctrl, addr)
+    def __init__(self, bus, addr=DEFAULT_ADDR):
+        super(AM2321, self).__init__(bus, addr)
         logger.debug('create AM2321(addr=%s) object', addr)
 

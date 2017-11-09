@@ -187,7 +187,7 @@ class SMBus(SMBusInterface):
         self._smbus.write_i2c_block_data(addr, cmd, vals)
 
 
-class MockController(SMBusInterface, I2CInterface):
+class MockBus(SMBusInterface, I2CInterface):
     """
     A helper class for mocking the Linux I2C/SMBus interface.
     """

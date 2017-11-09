@@ -4,7 +4,7 @@ __author__ = 'Alexander Rüedlinger'
 __all__ = ('BMP085', 'BMP180', 'BMP280')
 
 import logging
-logger = logging.getLogger('bmex')
+logger = logging.getLogger('bmpx')
 import time
 import struct
 from senlib.core.i2c import Sensor as I2CSensor
@@ -58,6 +58,10 @@ class BMP085(I2CSensor):
         self._temperature = self._pressure = 0
         self._calibration_data = {}
         self._read_calibration_data()
+
+    @property
+    def calibration_data(self):
+        return self._calibration_data
 
     @classmethod
     def driver_name(cls):
@@ -218,6 +222,10 @@ class BMP280(I2CSensor):
 
         self._set_settings()
         self._set_config()
+
+    @property
+    def calibration_data(self):
+        return self._calibration_data
 
     @classmethod
     def driver_name(cls):

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from senlib.i2c.sensors.amx import AM2315
 from senlib.i2c.sensors.amx import AM2321
-from senlib.core.i2c import MockController
+from senlib.core.i2c import MockBus
 
 AM2315.MIN_SAMPLING_PERIOD = 0
 AM2321.MIN_SAMPLING_PERIOD = 0
@@ -13,7 +13,7 @@ I2C_DATA_IN = [
 
 
 def test_create_am2315():
-    bus = MockController(read_data=I2C_DATA_IN)
+    bus = MockBus(read_data=I2C_DATA_IN)
     sensor = AM2315(bus=bus)
     assert sensor
     return sensor
@@ -36,7 +36,7 @@ def test_measure_am2315():
     assert sensor_data['humidity'] == 49.9
 
 def test_create_am2321():
-    bus = MockController(read_data=I2C_DATA_IN)
+    bus = MockBus(read_data=I2C_DATA_IN)
     sensor = AM2321(bus=bus)
     assert sensor
     return sensor

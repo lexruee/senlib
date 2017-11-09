@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 from senlib.i2c.sensors.bmpx import BMP180
 from senlib.i2c.sensors.bmpx import BMP280

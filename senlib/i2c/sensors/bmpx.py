@@ -12,12 +12,13 @@ from senlib.core.i2c import Sensor as I2CSensor
 
 class BMP085(I2CSensor):
     """
-    This is a quick and dirty driver implementation for the Bosch BMP085 barometer sensor
-    for use with Raspberry Pi computers.
+    This is a quick and dirty driver implementation for the Bosch BMP085 
+    barometer sensor for use with Raspberry Pi computers.
 
     Remarks and credits:
-        * The compensation functions for computing the temperature, pressure, and humidity values
-          are based on the Adafruit Python BMP driver: https://github.com/adafruit/Adafruit_Python_BMP
+        * The compensation functions for computing the temperature, pressure, 
+          and humidity values are based on the Adafruit Python BMP driver: 
+          https://github.com/adafruit/Adafruit_Python_BMP
 
     """
 
@@ -47,14 +48,15 @@ class BMP085(I2CSensor):
     def __init__(self, bus, addr=DEFAULT_ADDR):
         super(BMP085, self).__init__(bus, addr)
         logger.debug('create %s(addr=%s) object', self.DRIVER_NAME.upper(), addr)
-        self.dig_AC1 = self.dig_AC2 = self.dig_AC3 = self.dig_AC4 = self.dig_AC5 = self.dig_AC6 = self.dig_B1 = \
-            self.dig_B2 = self.dig_MB = self.dig_MC = self.dig_MD = 0
+        self.dig_AC1 = self.dig_AC2 = self.dig_AC3 = self.dig_AC4 = \
+                self.dig_AC5 = self.dig_AC6 = self.dig_B1 = self.dig_B2 = \
+                self.dig_MB = self.dig_MC = self.dig_MD = 0
 
         self.mode = self.MODE_STANDARD
         self.id = self._read_id()
 
         self._temperature = self._pressure = 0
-
+        self._calibration_data = {}
         self._read_calibration_data()
 
     @classmethod
@@ -144,12 +146,15 @@ class BMP085(I2CSensor):
         logger.debug('read calibration data')
         dig_AC1_MD = self._bus.read_i2c_block_data(self.addr, self.REG_AC1, 22)
         dig_AC1_MD = struct.unpack('>hhhHHHhhhhh',  bytearray(dig_AC1_MD))
-        self.dig_AC1, self.dig_AC2, self.dig_AC3, self.dig_AC4, self.dig_AC5, self.dig_AC6, self.dig_B1, self.dig_B2, \
-            self.dig_MB, self.dig_MC, self.dig_MD = dig_AC1_MD
-        logger.debug('AC1=%s, AC2=%s, AC3=%s, AC4=%s, AC5=%s, AC6=%s', self.dig_AC1, 
-                self.dig_AC2, self.dig_AC3, self.dig_AC4, self.dig_AC5, self.dig_AC6)
-        logger.debug('B1=%s, B2=%s, B=%s, MC=%s, MD=%s', self.dig_B1, self.dig_B2, 
-                self.dig_MB, self.dig_MC, self.dig_MD)
+        (self.dig_AC1, self.dig_AC2, self.dig_AC3, self.dig_AC4, self.dig_AC5, 
+                self.dig_AC6, self.dig_B1, self.dig_B2, self.dig_MB, self.dig_MC, 
+                self.dig_MD) = dig_AC1_MD
+        
+        keys = ['AC1', 'AC2', 'AC3', 'AC4', 'AC5', 'AC6', 'B1', 'B2', 'MB',
+                'MC', 'MD']
+        self._calibration_data = dict(zip(keys, dig_AC1_MD))
+        for key, val in self._calibration_data.items():
+            logger.debug('%s=%s', key, val) 
 
     def measure(self):
         self._temperature, self._pressure = self._read_sensor_data()
@@ -176,8 +181,8 @@ class BMP180(BMP085):
 
 class BMP280(I2CSensor):
     """
-    This is a quick and dirty driver implementation for the Bosch BMP280 barometer sensor
-    for use with Raspberry Pi computers.
+    This is a quick and dirty driver implementation for the Bosch BMP280 
+    barometer sensor for use with Raspberry Pi computers.
     """
 
     DRIVER_NAME = 'bmp280'
@@ -195,13 +200,13 @@ class BMP280(I2CSensor):
     def __init__(self, bus, addr=DEFAULT_ADDR):
         super(BMP280, self).__init__(bus, addr)
         logger.debug('create BMP280(addr=%s) object', addr)
-        self.dig_T1 = self.dig_T2 = self.dig_T3 = 0
-        self.dig_P1 = self.dig_P2 = self.dig_P3 = self.dig_P4 = self.dig_P5 = self.dig_P6 = self.dig_P7 \
-            = self.dig_P8 = self.dig_P9 = 0
+        self.dig_T1 = self.dig_T2 = self.dig_T3 = self.dig_P1 = self.dig_P2 = \
+                self.dig_P3 = self.dig_P4 = self.dig_P5 = self.dig_P6 = \
+                self.dig_P7 = self.dig_P8 = self.dig_P9 = 0
 
         self.t_fine = 0.0
         self._temperature = self._humidity = self._pressure = 0.0
-
+        self._calibration_data = {}
         self._read_calibration_data()
 
         self.osrs_h = 1
@@ -244,16 +249,17 @@ class BMP280(I2CSensor):
         logger.debug('read calibration data')
         dig_88_A1 = self._bus.read_i2c_block_data(self.addr, 0x88, 26)
         dig_88_A1 = struct.unpack('<HhhHhhhhhhhhBB', bytearray(dig_88_A1))
-        self.dig_T1, self.dig_T2, self.dig_T3, self.dig_P1, self.dig_P2, self.dig_P3, self.dig_P4, self.dig_P5, \
-        self.dig_P6, self.dig_P7, self.dig_P8, self.dig_P9, _, self.dig_H1 = dig_88_A1
+        (self.dig_T1, self.dig_T2, self.dig_T3, self.dig_P1, self.dig_P2, 
+                self.dig_P3, self.dig_P4, self.dig_P5, self.dig_P6, self.dig_P7, 
+                self.dig_P8, self.dig_P9, _, self.dig_H1) = dig_88_A1
 
-        logger.debug('T1=%s, T2=%s, T3=%s', self.dig_T1, self.dig_T2,
-                self.dig_T3)
-        logger.debug('P1=%s, P2=%s, P3=%s, P4=%s, P5=%s, P6=%s, P7=%s, P8=%s, P9=%s', 
-                self.dig_P1, self.dig_P2, self.dig_P3, self.dig_P4, self.dig_P5, 
-                self.dig_P6, self.dig_P7, self.dig_P8, self.dig_P9)
-        logger.debug('H1=%s', self.dig_H1)
- 
+        keys = ['T1', 'T2', 'T3', 'P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7',
+                'P8', 'P7', 'H1']
+        self._calibration_data = dict(zip(keys, dig_88_A1))
+        for key, val in self._calibration_data.items():
+            logger.debug('%s=%s', key, val) 
+
+
     def _read_raw_sensor_data(self):
         logger.debug('read pressure data')
         press_msb, press_lsb, press_xlsb = self._bus.read_i2c_block_data(self.addr, self.REG_PRESS, 3)

@@ -11,7 +11,7 @@ from .sensors import lmx
 from .sensors import mcpx
 from .sensors import mplx
 from .sensors import six
-from ..core.i2c import Controller
+from ..core.i2c import SMBus
 
 _SENSORS = {
         'am2315': amx.AM2315,
@@ -41,7 +41,7 @@ def get_sensor_driver(name):
 
 def get_sensor(name, bus, addr):
     driver_class = get_sensor_driver(name)
-    i2c_ctrl = Controller(bus or 1)
+    i2c_ctrl = SMBus(bus or 1)
     sensor = driver_class(i2c_ctrl, addr or driver_class.DEFAULT_ADDR)
     return sensor
 

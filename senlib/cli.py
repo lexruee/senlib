@@ -52,21 +52,17 @@ def main():
     import logging
     from senlib.i2c import DriverNotFound
     from senlib.i2c import get_sensor_driver
-    from senlib.core.i2c import LogController
-    from senlib.core.i2c import Controller
+    from senlib.core.i2c import SMBus
 
    
     try:
         addr = int(args.addr, 0) if args.addr else None
         args.output_file = open(args.output, 'w+') if args.output else None
 
-        i2c_ctrl = None
+        i2c_ctrl = SMBus(bus=args.bus)
         if args.debug:
             logger = logging.getLogger('senlib')
             logging.basicConfig(level=logging.DEBUG)
-            i2c_ctrl = LogController(bus=args.bus)
-        else:
-            i2c_ctrl = Controller(bus=args.bus)
      
         sensor = None
         if args.mock:

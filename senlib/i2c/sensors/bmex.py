@@ -11,15 +11,17 @@ from senlib.core.i2c import Sensor as I2CSensor
 
 class BME280(I2CSensor):
     """
-    This is a quick and dirty driver implementation for the Bosch BME280 integrated environmental sensor
-    for use with Raspberry Pi computers.
+    This is a quick and dirty driver implementation for the Bosch BME280 
+    integrated environmental sensor for use with Raspberry Pi computers.
 
     Remarks and credits:
-        * The compensation functions for computing the temperature, pressure, and humidity values
-          are based on the Adafruit Python BME280 driver: https://github.com/adafruit/Adafruit_Python_BME280
+        * The compensation functions for computing the temperature, pressure, 
+        and humidity values are based on the Adafruit Python BME280 driver: 
+        https://github.com/adafruit/Adafruit_Python_BME280
 
-        * The code for reading the BME280 sensor's calibration data is inspired by the implementation
-        for ESP8266 boards: https://github.com/catdog2/mpy_bme280_esp8266
+        * The code for reading the BME280 sensor's calibration data is inspired 
+        by the implementation for ESP8266 boards: 
+        https://github.com/catdog2/mpy_bme280_esp8266
     """
 
     DRIVER_NAME = 'bme280'
@@ -106,8 +108,9 @@ class BME280(I2CSensor):
         logger.debug('read calibration data')
         dig_88_A1 = self._bus.read_i2c_block_data(self.addr, 0x88, 26)
         dig_88_A1 = struct.unpack('<HhhHhhhhhhhhBB', bytearray(dig_88_A1))
-        self.dig_T1, self.dig_T2, self.dig_T3, self.dig_P1, self.dig_P2, self.dig_P3, self.dig_P4, self.dig_P5, \
-        self.dig_P6, self.dig_P7, self.dig_P8, self.dig_P9, _, self.dig_H1 = dig_88_A1
+        (self.dig_T1, self.dig_T2, self.dig_T3, self.dig_P1, self.dig_P2, 
+                self.dig_P3, self.dig_P4, self.dig_P5, self.dig_P6, self.dig_P7, 
+                self.dig_P8, self.dig_P9, _, self.dig_H1) = dig_88_A1
 
         dig_e1_e7 = self._bus.read_i2c_block_data(self.addr, 0xE1, 7)
         self.dig_H2, self.dig_H3 = struct.unpack('<hB', bytearray(dig_e1_e7[:3]))
@@ -160,8 +163,7 @@ class BME280(I2CSensor):
         var2 = var1 * var1 * self.dig_P6 / 32768.0
         var2 = var2 + var1 * self.dig_P5 * 2.0
         var2 = var2 / 4.0 + self.dig_P4 * 65536.0
-        var1 = (
-               self.dig_P3 * var1 * var1 / 524288.0 + self.dig_P2 * var1) / 524288.0
+        var1 = (self.dig_P3 * var1 * var1 / 524288.0 + self.dig_P2 * var1) / 524288.0
         var1 = (1.0 + var1 / 32768.0) * self.dig_P1
         if var1 == 0:
             return 0

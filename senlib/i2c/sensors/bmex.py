@@ -52,7 +52,7 @@ class BME280(I2CSensor):
 
         self.t_fine = 0.0
         self._temperature = self._humidity = self._pressure = 0.0
-
+        self._calibration_data = {}
         self._read_calibration_data()
 
         self.osrs_h = 1
@@ -64,6 +64,10 @@ class BME280(I2CSensor):
 
         self._set_meas_and_hum()
         self._set_config()
+
+    @property
+    def calibration_data(self):
+        return self._calibration_data
 
     @classmethod
     def driver_name(cls):
@@ -113,13 +117,15 @@ class BME280(I2CSensor):
         self.dig_H5 = (e6_sign << 4) | (dig_e1_e7[4] >> 4)
         self.dig_H6 = struct.unpack('<b', bytes([dig_e1_e7[6]]))[0]
 
-        logger.debug('T1=%s, T2=%s, T3=%s', self.dig_T1, self.dig_T2,
-                self.dig_T3)
-        logger.debug('P1=%s, P2=%s, P3=%s, P4=%s, P5=%s, P6=%s, P7=%s, P8=%s, P9=%s', 
-                self.dig_P1, self.dig_P2, self.dig_P3, self.dig_P4, self.dig_P5, 
-                self.dig_P6, self.dig_P7, self.dig_P8, self.dig_P9)
-        logger.debug('H1=%s, H2=%s, H3=%s, H4=%s, H5=%s, H6=%s', self.dig_H1, 
-                self.dig_H2, self.dig_H3, self.dig_H4, self.dig_H5, self.dig_H6)
+        keys = ['T1', 'T2', 'T3', 'P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7', 'P8', 
+                'P9', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6']
+        values = [self.dig_T1, self.dig_T2, self.dig_T3, self.dig_P1, self.dig_P2, 
+                self.dig_P3, self.dig_P4, self.dig_P5, self.dig_P6, self.dig_P7, 
+                self.dig_P8, self.dig_P9, self.dig_H1, self.dig_H2, self.dig_H3,
+                self.dig_H4, self.dig_H5, self.dig_H6]
+        self._calibration_data = dict(zip(keys, values))
+        for key, val in self._calibration_data.items():
+            logger.debug('%s=%s', key, val) 
  
     def _read_raw_sensor_data(self):
         logger.debug('read pressure data')

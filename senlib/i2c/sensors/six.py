@@ -3,14 +3,16 @@
 __author__ = 'Alexander Rüedlinger'
 __all__ = ('SI7021')
 
+import logging
+logger = logging.getLogger('six')
 import time
 from senlib.core.i2c import Sensor as I2CSensor
 
 
 class SI7021(I2CSensor):
     """
-    This is a driver implementation for the SILICON LABS SI7021 humidity / temperature sensor
-    for use with Raspberry Pi computers.
+    This is a driver implementation for the SILICON LABS SI7021 
+    humidity / temperature sensor for use with Raspberry Pi computers.
     """
 
     DRIVER_NAME = 'si7021'
@@ -24,6 +26,7 @@ class SI7021(I2CSensor):
 
     def __init__(self, i2c_ctrl, addr=ADDR):
         super(SI7021, self).__init__(i2c_ctrl, addr)
+        logger.debug('create SI7021(addr=%s) object', addr)
         self._temperature = self._humidity = 0.0
 
     @classmethod
@@ -35,6 +38,7 @@ class SI7021(I2CSensor):
         return cls.DEFAULT_ADDR
 
     def read_temperature(self):
+        logger.debug('read temperature data')
         self._i2c_ctrl.write_byte(self.addr, self.CMD_MEASURE_TEMP)
         time.sleep(0.3)
         msb = self._i2c_ctrl.read_byte(self.addr)
@@ -44,7 +48,8 @@ class SI7021(I2CSensor):
         return temp
 
     def read_humidity(self):
-        self._i2c_ctrl.write_byte(self.addr, self.CMD_MEASURE_HUM)
+        logger.debug('read humidity data')
+        self._bus.write_byte(self.addr, self.CMD_MEASURE_HUM)
         time.sleep(0.3)
         msb = self._i2c_ctrl.read_byte(self.addr)
         lsb = self._i2c_ctrl.read_byte(self.addr)

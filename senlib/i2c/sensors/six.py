@@ -40,7 +40,7 @@ class SI7021(I2CSensor):
     def read_temperature(self):
         logger.debug('read temperature data')
         self._bus.write_byte(self.addr, self.CMD_MEASURE_TEMP)
-        time.sleep(0.3)
+        time.sleep(0.05)
         msb = self._bus.read_byte(self.addr)
         lsb = self._bus.read_byte(self.addr)
         data = (msb << 8) | lsb
@@ -50,7 +50,7 @@ class SI7021(I2CSensor):
     def read_humidity(self):
         logger.debug('read humidity data')
         self._bus.write_byte(self.addr, self.CMD_MEASURE_HUM)
-        time.sleep(0.3)
+        time.sleep(0.05)
         msb = self._bus.read_byte(self.addr)
         lsb = self._bus.read_byte(self.addr)
         data = (msb << 8) | lsb
@@ -59,7 +59,7 @@ class SI7021(I2CSensor):
 
     def measure(self):
         self._humidity = self.read_humidity()
-        time.sleep(0.3)
+        time.sleep(0.01)
         self._temperature = self.read_temperature()
 
         return {

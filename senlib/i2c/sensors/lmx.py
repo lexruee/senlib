@@ -3,6 +3,8 @@
 __author__ = 'Alexander Rüedlinger'
 __all__ = ('LM75')
 
+import logging
+logger = logging.getLogger('lmx')
 from senlib.core.i2c import Sensor as I2CSensor
 
 
@@ -24,6 +26,7 @@ class LM75(I2CSensor):
 
     def __init__(self, bus, addr=ADDR):
         super(LM75, self).__init__(bus, addr)
+        logger.debug('create LM75(addr=%s) object', addr)
         self._temperature = 0.0
 
     @classmethod
@@ -35,6 +38,7 @@ class LM75(I2CSensor):
         return cls.DEFAULT_ADDR
 
     def read_temperature(self):
+        logger.debug('read temperature data')
         data = self._bus.read_word_data(self.addr, self.REG_TMP)
         msb = data & 0x00ff
         lsb = (data & 0xff00) >> 8

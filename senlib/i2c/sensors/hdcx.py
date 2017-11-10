@@ -3,6 +3,8 @@
 __author__ = 'Alexander Rüedlinger'
 __all__ = ('HDC1008')
 
+import logging
+logger = logging.getLogger('hdcx')
 import time
 from senlib.core.i2c import Sensor as I2CSensor
 
@@ -34,6 +36,7 @@ class HDC1008(I2CSensor):
 
     def __init__(self, bus, addr=DEFAULT_ADDR):
         super(HDC1008, self).__init__(bus, addr)
+        logger.debug('create HDC1008(addr=%s) object', addr)
         self._temperature = self._humidity = 0.0
         settings = 0
         settings |= (self.RST << 15)
@@ -53,15 +56,18 @@ class HDC1008(I2CSensor):
         return cls.DEFAULT_ADDR
 
     def _trigger_temperature_measurement(self):
+        logger.debug('trigger temperature measurement')
         self._bus.write_byte(self.addr, self.REG_TMP)
         time.sleep(0.015)
 
     def _trigger_humidity_measurement(self):
+        logger.debug('trigger humidity measurement')
         self._bus.write_byte(self.addr, self.REG_HUM)
         time.sleep(0.015)
 
     def read_temperature(self):
         self._trigger_temperature_measurement()
+        logger.debug('read temperature data')
         msb = self._bus.read_byte(self.addr)
         lsb = self._bus.read_byte(self.addr)
         tdata = (msb << 8) | lsb
@@ -73,6 +79,7 @@ class HDC1008(I2CSensor):
 
     def read_humidity(self):
         self._trigger_humidity_measurement()
+        logger.debug('read humidity data')
         msb = self._bus.read_byte(self.addr)
         lsb = self._bus.read_byte(self.addr)
         hdata = (msb << 8) | lsb

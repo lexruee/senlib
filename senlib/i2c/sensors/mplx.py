@@ -2,6 +2,8 @@
 __author__ = 'Alexander Rüedlinger'
 __all__ = ('MPL115A2')
 
+import logging
+logger = logging.getLogger('mplx')
 import time
 import struct
 from senlib.core.i2c import Sensor as I2CSensor
@@ -29,6 +31,7 @@ class MPL115A2(I2CSensor):
 
     def __init__(self, bus, addr=DEFAULT_ADDR):
         super(MPL115A2, self).__init__(bus, addr)
+        logger.debug('create MPL115A2(addr=%s) object', addr)
         self.dig_A0 = self.dig_B1 = self.dig_B2 = self.dig_C12 = 0.0
 
         self._pressure = self._temperature = 0.0
@@ -44,6 +47,7 @@ class MPL115A2(I2CSensor):
         return cls.DEFAULT_ADDR
 
     def _read_coefficients(self):
+        logger.debug('read calibration data')
         calib_data = self._bus.read_i2c_block_data(self.addr, self.REG_A0, 8)
         self.dig_A0, self.dig_B1, self.dig_B2, self.dig_C12 = struct.unpack('>hhhh', bytearray(calib_data))
         self.dig_A0 /= 8.0
@@ -57,6 +61,7 @@ class MPL115A2(I2CSensor):
         return adc_t
 
     def read_pressure(self):
+        logger.debug('read pressure data')
         self._bus.write_byte_data(self.addr, self.CMD_CONVERT, 0x00)
         time.sleep(5/1000.0)
 
@@ -69,6 +74,7 @@ class MPL115A2(I2CSensor):
     def read_temperature(self):
         # black magic temperature formula: http://forums.adafruit.com/viewtopic.php?f=25&t=34787
         # thx @park
+        logger.debug('read temperature data')
         self._bus.write_byte_data(self.addr, self.CMD_CONVERT, 0x00)
         time.sleep(5/1000.0)
 
@@ -120,6 +126,7 @@ class MPL3115A2(I2CSensor):
 
     def __init__(self, bus, addr=DEFAULT_ADDR):
         super(MPL3115A2, self).__init__(bus, addr)
+        logger.debug('create MPL3115A2(addr=%s) object', addr)
         self._mode = self.MODE_BAROMETER
         self._raw = self.RAW
         self._os = self.OS
@@ -159,6 +166,7 @@ class MPL3115A2(I2CSensor):
             time.sleep(0.3)
 
     def _read_pressure_data(self, wait=False):
+        logger.debug('read pressure data')
         if wait:
             self._wait()
 
@@ -170,6 +178,7 @@ class MPL3115A2(I2CSensor):
         return p_data / 4
 
     def _read_temperature_data(self, wait=False):
+        logger.debug('read temperature data')
         if wait:
             self._wait()
 

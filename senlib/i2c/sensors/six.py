@@ -44,7 +44,7 @@ class SI7021(I2CSensor):
         msb = self._bus.read_byte(self.addr)
         lsb = self._bus.read_byte(self.addr)
         data = (msb << 8) | lsb
-        temp = 175.72 * data/65536.0 - 46.85
+        temp = (175.72 * data)/65536.0 - 46.85
         return temp
 
     def read_humidity(self):
@@ -54,7 +54,7 @@ class SI7021(I2CSensor):
         msb = self._bus.read_byte(self.addr)
         lsb = self._bus.read_byte(self.addr)
         data = (msb << 8) | lsb
-        hum = 125 * data/65536.0 - 6
+        hum = (125 * data)/65536.0 - 6
         return hum
 
     def measure(self):

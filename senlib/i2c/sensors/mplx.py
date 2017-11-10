@@ -35,8 +35,13 @@ class MPL115A2(I2CSensor):
         self.dig_A0 = self.dig_B1 = self.dig_B2 = self.dig_C12 = 0.0
 
         self._pressure = self._temperature = 0.0
+        self._calibration_data = {}
+        self._read_calibration_data()
 
-        self._read_coefficients()
+    @property
+    def calibration_data(self):
+        return self._calibration_data
+
 
     @classmethod
     def driver_name(cls):
@@ -46,7 +51,7 @@ class MPL115A2(I2CSensor):
     def default_addr(cls):
         return cls.DEFAULT_ADDR
 
-    def _read_coefficients(self):
+    def _read_calibration_data(self):
         logger.debug('read calibration data')
         calib_data = self._bus.read_i2c_block_data(self.addr, self.REG_A0, 8)
         self.dig_A0, self.dig_B1, self.dig_B2, self.dig_C12 = struct.unpack('>hhhh', bytearray(calib_data))
@@ -54,6 +59,11 @@ class MPL115A2(I2CSensor):
         self.dig_B1 /= 8192.0
         self.dig_B2 /= 16384.0
         self.dig_C12 /= 16777216.0
+        keys = ['A0', 'B1', 'B2', 'C12']
+        values = [self.dig_A0, self.dig_B1, self.dig_B2, self.dig_C12]
+        self._calibration_data = dict(zip(keys, values))
+        for key, val in self._calibration_data.items():
+            logger.debug('%s=%s', key, val)
 
     def _read_adc_t(self):
         msb, lsb = self._bus.read_i2c_block_data(self.addr, self.REG_TADC, 2)

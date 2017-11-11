@@ -10,6 +10,7 @@ from .sensors import hdcx
 from .sensors import lmx
 from .sensors import mcpx
 from .sensors import mplx
+from .sensors import shtx
 from .sensors import six
 from ..core.i2c import SMBus
 
@@ -25,6 +26,7 @@ _SENSORS = {
         'mcp9808': mcpx.MCP9808,
         'mpl115a2': mplx.MPL115A2,
         'mpl3115a2': mplx.MPL3115A2,
+        'sht31': shtx.SHT31,
         'si7021': six.SI7021
 }
 

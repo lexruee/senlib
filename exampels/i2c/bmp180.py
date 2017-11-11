@@ -4,8 +4,8 @@ from senlib.i2c.sensors.bmpx import BMP180
 import time
 
 if __name__ == '__main__':
-    i2c_ctrl = SMBus(bus=1)
-    sensor = BMP180(i2c_ctrl=i2c_ctrl)
+    bus = SMBus(bus=1)
+    sensor = BMP180(bus=bus)
     time.sleep(0.2)
     data = sensor.measure()
     print(data)

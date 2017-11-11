@@ -4,8 +4,8 @@ from senlib.i2c.sensors.hdcx import HDC1008
 import time
 
 if __name__ == '__main__':
-    i2c_ctrl = SMBus(bus=1)
-    sensor = HDC1008(i2c_ctrl=i2c_ctrl)
+    bus = SMBus(bus=1)
+    sensor = HDC1008(bus=bus)
     time.sleep(0.2)
     data = sensor.measure()
     print(data)

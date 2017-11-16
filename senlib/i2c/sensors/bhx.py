@@ -41,11 +41,11 @@ class BH1750(I2CSensor):
     MAX_TIME_LRES = 0.024
     
     MODE_HRES = 0
-    MODE_HRES2 =1
+    MODE_HRES2 = 1
     MODE_LRES = 2
 
     MODE_HRES_C = 3
-    MODE_HRES2_C =4
+    MODE_HRES2_C = 4
     MODE_LRES_C = 5
     
     _MODES = {

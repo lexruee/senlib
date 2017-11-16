@@ -4,6 +4,7 @@ __author__ = 'Alexander Rüedlinger'
 __all__ = ()
 
 from .sensors import amx
+from .sensors import bhx
 from .sensors import bmex
 from .sensors import bmpx
 from .sensors import hdcx
@@ -17,6 +18,7 @@ from ..core.i2c import SMBus
 _SENSORS = {
         'am2315': amx.AM2315,
         'am2321': amx.AM2321,
+        'bh1750': bhx.BH1750,
         'bme280': bmex.BME280,
         'bmp085': bmpx.BMP085,
         'bmp180': bmpx.BMP180,

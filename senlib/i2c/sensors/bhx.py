@@ -4,8 +4,7 @@ __author__ = 'Alexander Rüedlinger'
 __all__ = ('BH1750FVI')
 
 import time
-import logging
-logger = logging.getLogger('bhx')
+from senlib import logger
 import struct
 from senlib.core.i2c import Sensor as I2CSensor
 

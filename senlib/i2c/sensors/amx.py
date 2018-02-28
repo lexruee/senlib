@@ -3,8 +3,7 @@
 __author__ = 'Alexander Rüedlinger'
 __all__ = ('AM2315', 'AM2321')
 
-import logging
-logger = logging.getLogger('amx')
+from senlib import logger
 import time
 from senlib.core.i2c import Sensor as I2CSensor
 

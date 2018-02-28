@@ -3,4 +3,5 @@
 __author__ = 'Alexander Rüedlinger'
 __all__ = ()
 
-
+import logging
+logger = logging.getLogger('senlib')

@@ -3,8 +3,7 @@
 __author__ = 'Alexander Rüedlinger'
 __all__ = ('BMP085', 'BMP180', 'BMP280')
 
-import logging
-logger = logging.getLogger('bmpx')
+from senlib import logger
 import time
 import struct
 from senlib.core.i2c import Sensor as I2CSensor

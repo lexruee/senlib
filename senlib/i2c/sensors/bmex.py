@@ -3,8 +3,7 @@
 __author__ = 'Alexander Rüedlinger'
 __all__ = ('BME280')
 
-import logging
-logger = logging.getLogger('bmex')
+from senlib import logger
 import struct
 from senlib.core.i2c import Sensor as I2CSensor
 

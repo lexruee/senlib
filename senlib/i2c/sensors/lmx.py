@@ -3,8 +3,7 @@
 __author__ = 'Alexander Rüedlinger'
 __all__ = ('LM75')
 
-import logging
-logger = logging.getLogger('lmx')
+from senlib import logger
 from senlib.core.i2c import Sensor as I2CSensor
 
 

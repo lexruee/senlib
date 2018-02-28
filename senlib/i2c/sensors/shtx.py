@@ -4,8 +4,7 @@ __author__ = 'Alexander Rüedlinger'
 __all__ = ('SHT31')
 
 import time
-import logging
-logger = logging.getLogger('shtx')
+from senlib import logger
 import struct
 from senlib.core.i2c import Sensor as I2CSensor
 

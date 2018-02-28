@@ -3,8 +3,7 @@
 __author__ = 'Alexander Rüedlinger'
 __all__ = ('HDC1008')
 
-import logging
-logger = logging.getLogger('hdcx')
+from senlib import logger
 import time
 from senlib.core.i2c import Sensor as I2CSensor
 

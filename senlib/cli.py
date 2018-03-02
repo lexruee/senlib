@@ -15,6 +15,7 @@ from senlib.i2c import get_sensor_driver
 from senlib.core.i2c import SMBus
 import asyncio
 import sys
+import logging
 
 
 class Application:
@@ -49,9 +50,9 @@ class Application:
             self._sensor = Sensor()
         else:
             try:
-                i2c_ctrl = SMBus(bus=args.bus)
-                driver_class = get_sensor_driver(name=args.sensor)
-                self._sensor = driver_class(i2c_ctrl, addr or driver_class.default_addr())
+                i2c_ctrl = SMBus(bus=self._args.bus)
+                driver_class = get_sensor_driver(name=self._args.sensor)
+                self._sensor = driver_class(i2c_ctrl, self._i2caddr or driver_class.default_addr())
 
             except DriverNotFound as e:
                 print(e)

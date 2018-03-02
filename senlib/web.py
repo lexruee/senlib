@@ -53,7 +53,6 @@ class Handler:
             while True:
                 await asyncio.sleep(self._interval)
                 logger.debug('alive...')
-                await ws.ping()
                 logger.debug(self._clients)
 
         except web.HTTPException as e:

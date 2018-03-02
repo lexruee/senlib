@@ -21,7 +21,9 @@ AUTHOR = 'Alexander Rüedlinger'
 # What packages are required for this module to be executed?
 REQUIRED = [
     'cffi',
-    'smbus-cffi'
+    'smbus-cffi',
+    'aiohttp',
+    'dicttoxml'
 ]
 
 # The rest you shouldn't have to touch too much :)
@@ -88,7 +90,10 @@ setup(
     install_requires=REQUIRED,
     include_package_data=True,
     entry_points={
-        'console_scripts': ['senlib=senlib.cli:main'],
+        'console_scripts': [
+            'sencmon=senlib.cli:sencmon',
+            'senwmon=senlib.cli:senwmon',
+            ],
     },
     license='GPLv3',
     classifiers=[

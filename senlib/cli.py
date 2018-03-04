@@ -163,10 +163,9 @@ class CLIMonitor(Application):
             return xml
 
     def _generate_text(self, args, data):
-        out = "sensor: {}\n".format(data['name'])
-        out += "timestamp: {}\n".format(data['timestamp'])
+        out = "timestamp: {}\n".format(data['timestamp'])
         for key, value in data['measurements'].items():
-            out += "\t{}: {}\n".format(key, value)
+            out += "{}: {}\n".format(key, value)
         return out
 
 

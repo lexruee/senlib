@@ -96,6 +96,9 @@ class Application:
     def _before_start(self):
         pass
 
+    def _after_stop(self):
+        pass
+
     def run(self):
         self._before_start()
         self._start()
@@ -104,7 +107,7 @@ class Application:
         except KeyboardInterrupt:
             pass
         finally:
-            pass
+            self._after_stop()
 
 
 class CLIMonitor(Application):
@@ -169,22 +172,37 @@ class CLIMonitor(Application):
         return out
 
 
-class WebMonitor(Application):
+class SensorNode(Application):
    
     DESCRIPTION = 'senwmon - Web server for exposing some I2C sensors via HTTP.'
 
     def __init__(self, loop=None, client=None, miner=None):
         super().__init__(loop, client)
         self._webserver = None
+        self._publisher = None
+
         from senlib.web import WebServer
         self._webserver = WebServer(self._args.interval, self._loop, self._sensor)
-        host, port = self._args.http_address, self._args.http_port
-        print("HTTP server runs under http://{}:{}".format(host, port))
-        print("Websocket server runs under ws://{}:{}".format(host, port))
-        print("Enter Ctrl-C to exit.")
+        http_host, http_port = self._args.http_address, self._args.http_port
+
+        print("HTTP server runs under http://{}:{}".format(http_host, http_port))
+        print("Websocket server runs under ws://{}:{}".format(http_host, http_port))
         h = self._webserver.make_handler()
-        f = self._loop.create_server(h, host, port)
+        f = self._loop.create_server(h, http_host, http_port)
         self._loop.run_until_complete(f)
+
+        if self._args.mqtt_address:
+            from senlib.mqtt import Publisher
+            mqtt_host, mqtt_port, mqtt_topic = self._args.mqtt_address, self._args.mqtt_port, self._args.mqtt_topic
+            if not mqtt_topic:
+                mqtt_topic = 'sensor/{}'.format(self._sensor.DRIVER_NAME)
+
+            self._publisher = Publisher(mqtt_host, mqtt_port, mqtt_topic)
+            
+            print("Connected to MQTT broker {}:{}".format(mqtt_host, mqtt_port))
+            print("Publish data under topic {}".format(mqtt_topic))
+
+        print("Enter Ctrl-C to exit.")
 
     def _add_extra_arguments(self):
         self._parser.add_argument('-i', '--interval', type=float, dest='interval', 
@@ -193,17 +211,32 @@ class WebMonitor(Application):
                 help='Set HTTP address.', default='0.0.0.0')
         self._parser.add_argument('--http-port', type=int, dest='http_port', 
                 help='Set HTTP port.', default=8080)
-
+        self._parser.add_argument('--mqtt-address', type=str, dest='mqtt_address', 
+                help='Set MQTT broker address.', default='')
+        self._parser.add_argument('--mqtt-port', type=int, dest='mqtt_port', 
+                help='Set MQTT broker port.', default=1883)
+        self._parser.add_argument('--mqtt-topic', type=str, dest='mqtt_topic', 
+                help='Set MQTT topic.', default='')
+ 
     def _handle_data(self, data):
-        self._webserver.broadcast(data)
+        if self._webserver:
+            self._webserver.broadcast(data)
+        
+        if self._publisher:
+            self._publisher.publish(data)
+
+    def _after_stop(self):
+        if self._publisher:
+            self._publisher.close()
 
 
-def sencmon():
+
+def senlib():
     app = CLIMonitor()
     app.run()
 
-def senwmon():
-    app = WebMonitor()
+def sennode():
+    app = SensorNode()
     app.run()
 
 

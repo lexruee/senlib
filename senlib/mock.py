@@ -5,6 +5,8 @@ __all__ = ('Sensor')
 
 
 class Sensor(object):
+    
+    DRIVER_NAME = 'mock-sensor'
 
     def measure(self):
         return {

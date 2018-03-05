@@ -23,6 +23,7 @@ REQUIRED = [
     'cffi',
     'smbus-cffi',
     'aiohttp',
+    'hbmqtt',
     'dicttoxml'
 ]
 
@@ -91,8 +92,8 @@ setup(
     include_package_data=True,
     entry_points={
         'console_scripts': [
-            'sencmon=senlib.cli:sencmon',
-            'senwmon=senlib.cli:senwmon',
+            'senlib=senlib.cli:senlib',
+            'sennode=senlib.cli:sennode',
             ],
     },
     license='GPLv3',

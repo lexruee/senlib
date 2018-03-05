@@ -110,9 +110,9 @@ class Application:
             self._after_stop()
 
 
-class CLIMonitor(Application):
+class SenlibCLI(Application):
    
-    DESCRIPTION = 'sencmon - Basic CLI for retrieving data for some I2C sensors.'
+    DESCRIPTION = 'senlib - Basic CLI for retrieving data for some I2C sensors.'
 
     def __init__(self, loop=None, client=None):
         super().__init__(loop, client)
@@ -174,7 +174,8 @@ class CLIMonitor(Application):
 
 class SensorNode(Application):
    
-    DESCRIPTION = 'senwmon - Web server for exposing some I2C sensors via HTTP.'
+    DESCRIPTION = """sennode - Basic node application for exposing an I2C sensor 
+    via HTTP, WebSockets or MQTT"""
 
     def __init__(self, loop=None, client=None, miner=None):
         super().__init__(loop, client)
@@ -232,7 +233,7 @@ class SensorNode(Application):
 
 
 def senlib():
-    app = CLIMonitor()
+    app = SenlibCLI()
     app.run()
 
 def sennode():

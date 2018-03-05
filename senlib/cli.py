@@ -181,6 +181,8 @@ class SensorNode(Application):
         super().__init__(loop, client)
         self._webserver = None
         self._publisher = None
+        
+        print("Enter Ctrl-C to exit.")
 
         from senlib.web import WebServer
         self._webserver = WebServer(self._args.interval, self._loop, self._sensor)
@@ -199,11 +201,13 @@ class SensorNode(Application):
                 mqtt_topic = 'sensor/{}'.format(self._sensor.DRIVER_NAME)
 
             self._publisher = Publisher(mqtt_host, mqtt_port, mqtt_topic)
-            
-            print("Connected to MQTT broker {}:{}".format(mqtt_host, mqtt_port))
-            print("Publish data under topic {}".format(mqtt_topic))
+            async def connect():
+                code = await self._publisher.connect()
+                if code == 0:
+                    print("Connected to MQTT broker {}:{}".format(mqtt_host, mqtt_port))
+                    print("Publish data under topic {}".format(mqtt_topic))
 
-        print("Enter Ctrl-C to exit.")
+            asyncio.ensure_future(connect())
 
     def _add_extra_arguments(self):
         self._parser.add_argument('-i', '--interval', type=float, dest='interval', 
@@ -228,7 +232,7 @@ class SensorNode(Application):
 
     def _after_stop(self):
         if self._publisher:
-            self._publisher.close()
+            self._publisher.disconnect()
 
 
 

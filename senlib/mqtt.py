@@ -16,13 +16,17 @@ class Publisher:
         self._port = port
         self._topic = topic
         self._client = MQTTClient()
-        asyncio.ensure_future(self._client.connect('{}:{}'.format(self._broker,
-            self._port)))
+        self._connection_code = None
+                
+    async def connect(self):
+        self._connection_code = await self._client.connect('{}:{}'.format(self._broker, self._port))
+        return self._connection_code
 
     def publish(self, data):
         json_data = json.dumps(data)
         bdata = bytes(json_data, 'utf-8')
-        asyncio.ensure_future(self._client.publish(self._topic, bdata))
+        if self._connection_code == 0x00:
+            asyncio.ensure_future(self._client.publish(self._topic, bdata))
 
-    def close(self):
+    def disconnect(self):
         self._client.disconnect()

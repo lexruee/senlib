@@ -7,7 +7,7 @@ from senlib import logger
 from hbmqtt.client import MQTTClient, ClientException
 from hbmqtt.mqtt.constants import QOS_1, QOS_2
 import json
-import time
+
 
 class Publisher:
 
@@ -23,7 +23,6 @@ class Publisher:
         return self._connection_code
 
     def publish(self, data):
-        data['timestamp'] = time.time()
         json_data = json.dumps(data)
         bdata = bytes(json_data, 'utf-8')
         if self._connection_code == 0x00:

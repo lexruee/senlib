@@ -6,6 +6,7 @@ import aiohttp
 import asyncio
 from aiohttp import web
 from senlib import logger
+import time
 
 
 class WebServer:
@@ -36,6 +37,7 @@ class Handler:
 
     def _create_data(self):
         data = self._sensor.measure()
+        data['timestamp'] = time.time()
         return data
 
     async def broadcast(self, data):

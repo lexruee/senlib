@@ -14,6 +14,7 @@ from senlib.i2c import DriverNotFound
 from senlib.i2c import get_sensor_driver
 from senlib.core.i2c import SMBus
 import asyncio
+import time
 import sys
 import logging
 
@@ -224,6 +225,7 @@ class SensorNode(Application):
                 help='Set MQTT topic.', default='')
  
     def _handle_data(self, data):
+        data['timestamp'] = time.time()
         if self._webserver:
             self._webserver.broadcast(data)
         

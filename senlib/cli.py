@@ -221,7 +221,7 @@ class SensorNode(Application):
                 help='Set MQTT broker address.', default='')
         self._parser.add_argument('--mqtt-port', type=int, dest='mqtt_port', 
                 help='Set MQTT broker port.', default=1883)
-        self._parser.add_argument('--mqtt-topic', type=str, dest='mqtt_topic', 
+        self._parser.add_argument('-t', '--mqtt-topic', type=str, dest='mqtt_topic', 
                 help='Set MQTT topic.', default='')
  
     def _handle_data(self, data):

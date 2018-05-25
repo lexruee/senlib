@@ -136,3 +136,23 @@ Code Examples
 -------------
 
 For details and examples have a look in the examples or tests directory.
+
+Basic code example:
+
+::
+
+   #!/usr/bin/env python3
+   from senlib.core.i2c import SMBus
+   from senlib.i2c.sensors.bmex import BME280
+   import time
+
+   if __name__ == '__main__':
+       bus = SMBus(bus=1)
+       sensor = BME280(bus=bus)
+       for range(0, 5):
+          time.sleep(0.2)
+          data = sensor.measure()
+          for key, value in data.items():
+              print("{}:{:0.4f}".format(key, value))
+          
+       sensor.close()

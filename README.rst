@@ -139,7 +139,7 @@ For details and examples have a look in the examples or tests directory.
 
 Basic code example:
 
-::
+.. code:: python
 
    #!/usr/bin/env python3
    from senlib.core.i2c import SMBus
@@ -149,7 +149,7 @@ Basic code example:
    if __name__ == '__main__':
        bus = SMBus(bus=1)
        sensor = BME280(bus=bus)
-       for range(0, 5):
+       for _ in range(0, 5):
           time.sleep(0.2)
           data = sensor.measure()
           for key, value in data.items():

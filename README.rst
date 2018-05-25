@@ -4,6 +4,20 @@ senlib
 Pure Python-based I2C sensor library for some I2C sensors. Work in
 progress. Nothing serious, just a hobby.
 
+Currently, the library supports the following sensors:
+
+-  am2315/am2321
+-  bh1750
+-  bmp280/bmp180/bmp85
+-  bme280
+-  hdc1008
+-  lm75
+-  mcp9808
+-  mpl115a2
+-  mpl311a2
+-  sht31
+-  si7021
+
 Installation
 ------------
 

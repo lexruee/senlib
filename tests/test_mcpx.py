@@ -29,3 +29,8 @@ def test_measure_mcp9808():
     sensor_data = sensor.measure()
     assert sensor_data
     assert sensor_data['temperature'] == 20.25
+
+def test_close_mcp9808():
+    sensor = test_create_mcp9808()
+    sensor_data = sensor.measure()
+    sensor.close() 

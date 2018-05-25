@@ -36,3 +36,8 @@ def test_measure_bme280():
     assert sensor_data['humidity'] - 54.88 <= 0.1
     assert sensor_data['temperature'] - 20.08 <= 0.1
     assert sensor_data['pressure'] - 93245.52 <= 0.1
+
+def test_close_bme280():
+    sensor = test_create_bme280()
+    sensor_data = sensor.measure()
+    sensor.close() 

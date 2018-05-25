@@ -41,3 +41,8 @@ def test_measure_si7021():
     assert sensor_data
     assert sensor_data['humidity'] - 65.57 <= 0.1
     assert sensor_data['temperature'] - 19.99 <= 0.1
+
+def test_close_si7021():
+    sensor = test_create_si7021()
+    sensor_data = sensor.measure()
+    sensor.close() 

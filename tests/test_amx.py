@@ -35,6 +35,11 @@ def test_measure_am2315():
     assert sensor_data['temperature'] == 20.3
     assert sensor_data['humidity'] == 49.9
 
+def test_close_am2315():
+    sensor = test_create_am2315()
+    sensor_data = sensor.measure()
+    sensor.close() 
+
 def test_create_am2321():
     bus = MockBus(read_data=I2C_DATA_IN)
     sensor = AM2321(bus=bus)
@@ -58,3 +63,7 @@ def test_measure_am2321():
     assert sensor_data['temperature'] == 20.3
     assert sensor_data['humidity'] == 49.9
 
+def test_close_am2321():
+    sensor = test_create_am2321()
+    sensor_data = sensor.measure()
+    sensor.close()

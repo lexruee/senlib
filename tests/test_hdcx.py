@@ -31,3 +31,8 @@ def test_measure_hdc1008():
     assert sensor_data
     assert sensor_data['temperature'] - 22.12 <= 0.1
     assert sensor_data['humidity'] - 63.17 <= 0.1
+
+def test_close_hdc1008():
+    sensor = test_create_hdc1008()
+    sensor_data = sensor.measure()
+    sensor.close() 

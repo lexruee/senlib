@@ -47,6 +47,11 @@ def test_measure_bmp180():
     assert sensor_data['temperature'] - 25.7 <= 0.1
     assert sensor_data['pressure'] -  92829 <= 0.1
 
+def test_close_bmp180():
+    sensor = test_create_bmp180()
+    sensor_data = sensor.measure()
+    sensor.close() 
+
 def test_create_bmp280():
     bus = MockBus(read_data=BMP280_I2C_DATA_IN)
     sensor = BMP280(bus=bus)
@@ -65,3 +70,8 @@ def test_measure_bmp280():
     assert sensor_data
     assert sensor_data['temperature'] - 20.33 <= 0.1
     assert sensor_data['pressure'] - 92966.48 <= 0.1
+
+def test_close_bmp280():
+    sensor = test_create_bmp280()
+    sensor_data = sensor.measure()
+    sensor.close() 

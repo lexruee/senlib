@@ -31,3 +31,8 @@ def test_measure_sht31():
     assert sensor_data
     assert sensor_data['temperature'] - 22.12 <= 0.1
     assert sensor_data['humidity'] - 43.07 <= 0.1
+
+def test_close_sht31():
+    sensor = test_create_sht31()
+    sensor_data = sensor.measure()
+    sensor.close() 

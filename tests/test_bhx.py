@@ -34,3 +34,8 @@ def test_measure_bh1750():
     sensor_data = sensor.measure()
     assert sensor_data
     assert sensor_data['illuminance'] - 1669.167 <= 0.1
+
+def test_close_bh1750():
+    sensor = test_create_bh1750()
+    sensor_data = sensor.measure()
+    sensor.close() 

@@ -44,6 +44,11 @@ def test_measure_mpl3115a2():
     assert sensor_data['temperature'] == 19.0
     assert sensor_data['pressure'] == 93314.25
 
+def test_close_mpl3115a2():
+    sensor = test_create_mpl3115a2()
+    sensor_data = sensor.measure()
+    sensor.close() 
+
 def test_create_mpl115a2():
     bus = MockBus(read_data=MPL115A2_I2C_DATA_IN)
     sensor = MPL115A2(bus=bus)
@@ -67,3 +72,8 @@ def test_measure_mpl115a2():
     assert sensor_data
     assert sensor_data['temperature'] - 21.34 <= 0.1
     assert sensor_data['pressure'] - 93307.95 <= 0.1
+
+def test_close_mpl115a2():
+    sensor = test_create_mpl115a2()
+    sensor_data = sensor.measure()
+    sensor.close() 

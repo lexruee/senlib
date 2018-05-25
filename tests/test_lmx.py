@@ -34,3 +34,8 @@ def test_measure_lm75():
     sensor_data = sensor.measure()
     assert sensor_data
     assert sensor_data['temperature'] == 21.5
+
+def test_close_lm75():
+    sensor = test_create_lm75()
+    sensor_data = sensor.measure()
+    sensor.close() 

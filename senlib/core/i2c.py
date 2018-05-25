@@ -270,7 +270,7 @@ class Device(object):
         return '/{}/{}@0x{:x}'.format(bus_name, driver_name, addr)
 
     def close(self):
-        self._i2c_ctrl.close()
+        self._bus.close()
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()

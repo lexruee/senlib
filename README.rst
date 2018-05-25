@@ -148,7 +148,7 @@ Basic code example:
 
    if __name__ == '__main__':
        bus = SMBus(bus=1)
-       sensor = BME280(bus=bus)
+       sensor = BME280(bus=bus, addr=0x77)
        for _ in range(0, 5):
           time.sleep(0.2)
           data = sensor.measure()
@@ -156,3 +156,22 @@ Basic code example:
               print("{}:{:0.4f}".format(key, value))
           
        sensor.close()
+
+The shorter example uses the ``with`` syntax to automatically close the
+sensor object:
+
+.. code:: python
+
+   #!/usr/bin/env python3
+   from senlib.core.i2c import SMBus
+   from senlib.i2c.sensors.bmex import BME280
+   import time
+
+   if __name__ == '__main__':
+       bus = SMBus(bus=1)
+       with BME280(bus=bus, addr=0x77) as sensor:
+          for _ in range(0, 5):
+              time.sleep(0.2)
+              data = sensor.measure()
+              for key, value in data.items():
+                  print("{}:{:0.4f}".format(key, value))

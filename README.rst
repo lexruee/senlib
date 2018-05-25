@@ -27,6 +27,18 @@ Installation
    cd senlib
    ./setup.py
 
+Testing/Development
+-------------------
+
+::
+
+   pipenv --three
+   pipenv shell
+   git clone https://github.com/lexruee/senlib
+   cd senlib
+   pip install -e .
+   pytest tests
+
 CLI
 ---
 
@@ -74,7 +86,7 @@ Example Usage
 
 ::
 
-   sennode bme280 -a 0x77
+   sennode bme280 -a 0x77 -b 1
 
 .. _senlib-1:
 
@@ -118,4 +130,9 @@ Example Usage
 
 ::
 
-   senlib bme280 -a 0x77 -p -i 1
+   senlib bme280 -a 0x77 -b 1 -p -i 1
+
+Code Examples
+-------------
+
+For details and examples have a look in the examples or tests directory.

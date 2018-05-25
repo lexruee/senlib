@@ -25,7 +25,7 @@ Installation
 
    git clone https://github.com/lexruee/senlib
    cd senlib
-   ./setup.py
+   ./setup.py install
 
 Testing/Development
 -------------------
@@ -87,6 +87,12 @@ Example Usage
 ::
 
    sennode bme280 -a 0x77 -b 1
+
+Once started, the sensor data is exposed over an HTTP interface and a
+WebSocket interface:
+
+-  http://0.0.0.0:8080
+-  ws://0.0.0.0:8080
 
 .. _senlib-1:
 

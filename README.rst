@@ -1,6 +1,9 @@
 senlib
 ======
 
+Pure Python-based I2C sensor library for some I2C sensors. Work in
+progress. Nothing serious, just a hobby.
+
 Installation
 ------------
 
@@ -52,6 +55,13 @@ sennode
      -t MQTT_TOPIC, --mqtt-topic MQTT_TOPIC
                            Set MQTT topic.
 
+Example Usage
+^^^^^^^^^^^^^
+
+::
+
+   sennode bme280 -a 0x77
+
 .. _senlib-1:
 
 senlib
@@ -86,3 +96,12 @@ senlib
      --pretty-print        Use pretty print output format.
      -o OUTPUT, --output OUTPUT
                            Save output to a file.
+
+.. _example-usage-1:
+
+Example Usage
+^^^^^^^^^^^^^
+
+::
+
+   senlib bme280 -a 0x77 -p -i 1

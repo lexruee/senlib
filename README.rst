@@ -21,23 +21,50 @@ Currently, the library supports the following sensors:
 Installation
 ------------
 
+Before you can install senlib, you should install first ``pipenv`` using
+the package manager of your operating system.
+
+On Arch Linux run the following command to install ``pipenv``:
+
+::
+
+   sudo pacman -S python-pipenv
+
+Next, clone this repo and cd into the ``senlib`` directory:
+
 ::
 
    git clone https://github.com/lexruee/senlib
    cd senlib
-   ./setup.py install
 
-Testing/Development
--------------------
+Next, create a Python 3 environment as shown below:
 
 ::
 
    pipenv --three
-   pipenv shell
-   git clone https://github.com/lexruee/senlib
-   cd senlib
-   pip install -e .
-   pytest tests
+
+Lastly, install the package:
+
+::
+
+   pipenv install -e .
+
+Testing/Development
+-------------------
+
+For installation see section Installation.
+
+To run the tests use:
+
+::
+
+   pipenv run pytest tests
+
+or cd into the directory and run:
+
+::
+
+   pipenv shell && pytest tests
 
 CLI
 ---
@@ -47,14 +74,12 @@ sennode
 
 ::
 
-   sennode --help
    usage: sennode [-h] [--version] [--mock] [-a ADDR] [-b BUS] [-d] [-i INTERVAL]
                   [--http-address HTTP_ADDRESS] [--http-port HTTP_PORT]
-                  [--mqtt-address MQTT_ADDRESS] [--mqtt-port MQTT_PORT]
-                  [-t MQTT_TOPIC]
+                  [--mqtt-url MQTT_URL] [-t MQTT_TOPIC]
                   sensor
 
-   sennode - Basic node application for exposing an I2C sensor via HTTP,
+   sennode - Basic sensor node application for exposing an I2C sensor via HTTP,
    WebSockets or MQTT
 
    positional arguments:
@@ -74,10 +99,7 @@ sennode
                            Set HTTP address.
      --http-port HTTP_PORT
                            Set HTTP port.
-     --mqtt-address MQTT_ADDRESS
-                           Set MQTT broker address.
-     --mqtt-port MQTT_PORT
-                           Set MQTT broker port.
+     --mqtt-url MQTT_URL   Set MQTT URL broker address.
      -t MQTT_TOPIC, --mqtt-topic MQTT_TOPIC
                            Set MQTT topic.
 

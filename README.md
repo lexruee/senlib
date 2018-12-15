@@ -68,16 +68,13 @@ pipenv shell && pytest tests
 ## CLI
 
 ### sennode
-
 ```
-sennode --help
 usage: sennode [-h] [--version] [--mock] [-a ADDR] [-b BUS] [-d] [-i INTERVAL]
                [--http-address HTTP_ADDRESS] [--http-port HTTP_PORT]
-               [--mqtt-address MQTT_ADDRESS] [--mqtt-port MQTT_PORT]
-               [-t MQTT_TOPIC]
+               [--mqtt-url MQTT_URL] [-t MQTT_TOPIC]
                sensor
 
-sennode - Basic node application for exposing an I2C sensor via HTTP,
+sennode - Basic sensor node application for exposing an I2C sensor via HTTP,
 WebSockets or MQTT
 
 positional arguments:
@@ -97,12 +94,10 @@ optional arguments:
                         Set HTTP address.
   --http-port HTTP_PORT
                         Set HTTP port.
-  --mqtt-address MQTT_ADDRESS
-                        Set MQTT broker address.
-  --mqtt-port MQTT_PORT
-                        Set MQTT broker port.
+  --mqtt-url MQTT_URL   Set MQTT URL broker address.
   -t MQTT_TOPIC, --mqtt-topic MQTT_TOPIC
                         Set MQTT topic.
+
 ```
 
 
@@ -198,3 +193,4 @@ if __name__ == '__main__':
            for key, value in data.items():
                print("{}:{:0.4f}".format(key, value))
 ```
+

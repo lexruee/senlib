@@ -175,7 +175,7 @@ class SenlibCLI(Application):
 
 class SensorNode(Application):
    
-    DESCRIPTION = """sennode - Basic node application for exposing an I2C sensor 
+    DESCRIPTION = """sennode - Basic sensor node application for exposing an I2C sensor
     via HTTP, WebSockets or MQTT"""
 
     def __init__(self, loop=None, client=None, miner=None):
@@ -195,17 +195,18 @@ class SensorNode(Application):
         f = self._loop.create_server(h, http_host, http_port)
         self._loop.run_until_complete(f)
 
-        if self._args.mqtt_address:
+        if self._args.mqtt_url:
             from senlib.mqtt import Publisher
-            mqtt_host, mqtt_port, mqtt_topic = self._args.mqtt_address, self._args.mqtt_port, self._args.mqtt_topic
+            mqtt_url, mqtt_topic = self._args.mqtt_url, self._args.mqtt_topic
+
             if not mqtt_topic:
                 mqtt_topic = 'sensor/{}'.format(self._sensor.DRIVER_NAME)
 
-            self._publisher = Publisher(mqtt_host, mqtt_port, mqtt_topic)
+            self._publisher = Publisher(mqtt_url, mqtt_topic)
             async def connect():
                 code = await self._publisher.connect()
                 if code == 0:
-                    print("Connected to MQTT broker {}:{}".format(mqtt_host, mqtt_port))
+                    print("Connected to MQTT broker {}".format(mqtt_url))
                     print("Publish data under topic {}".format(mqtt_topic))
 
             asyncio.ensure_future(connect())
@@ -217,10 +218,8 @@ class SensorNode(Application):
                 help='Set HTTP address.', default='0.0.0.0')
         self._parser.add_argument('--http-port', type=int, dest='http_port', 
                 help='Set HTTP port.', default=8080)
-        self._parser.add_argument('--mqtt-address', type=str, dest='mqtt_address', 
-                help='Set MQTT broker address.', default='')
-        self._parser.add_argument('--mqtt-port', type=int, dest='mqtt_port', 
-                help='Set MQTT broker port.', default=1883)
+        self._parser.add_argument('--mqtt-url', type=str, dest='mqtt_url', 
+                help='Set MQTT URL broker address.', default='')
         self._parser.add_argument('-t', '--mqtt-topic', type=str, dest='mqtt_topic', 
                 help='Set MQTT topic.', default='')
  

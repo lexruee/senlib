@@ -1,6 +1,0 @@
-dicttoxml==1.7.4
-aiohttp==2.3.2
-cffi==1.11.2
-py==1.4.34
-pycparser==2.18
-smbus-cffi==0.5.1

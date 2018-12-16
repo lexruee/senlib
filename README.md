@@ -68,6 +68,7 @@ pipenv shell && pytest tests
 ## CLI
 
 ### sennode
+
 ```
 usage: sennode [-h] [--version] [--mock] [-a ADDR] [-b BUS] [-d] [-i INTERVAL]
                [--http-address HTTP_ADDRESS] [--http-port HTTP_PORT]
@@ -104,7 +105,7 @@ optional arguments:
 #### Example Usage
 
 ```
-sennode bme280 -a 0x77 -b 1
+sennode bme280 -a 0x77 -b 1 --mqtt-url mqtts://user:password@mqtt.xyz.ch:8883
 ```
 
 Once started, the sensor data is exposed over an HTTP interface and
@@ -112,6 +113,9 @@ a WebSocket interface:
 
  * http://0.0.0.0:8080
  * ws://0.0.0.0:8080
+
+Besides that, the sensor data is perodically pushlished to the specified
+MQTT broker url.
 
 
 ### senlib

@@ -17,7 +17,7 @@ import asyncio
 import time
 import sys
 import logging
-
+import platform
 
 class Application:
    
@@ -182,32 +182,33 @@ class SensorNode(Application):
         super().__init__(loop, client)
         self._webserver = None
         self._publisher = None
+        self.node = self._args.node
+        self.http_host, self.http_port = self._args.http_address, self._args.http_port
+        self.mqtt_url, self.mqtt_topic = self._args.mqtt_url, self._args.mqtt_topic
         
         print("Enter Ctrl-C to exit.")
 
         from senlib.web import WebServer
         self._webserver = WebServer(self._args.interval, self._loop, self._sensor)
-        http_host, http_port = self._args.http_address, self._args.http_port
 
-        print("HTTP server runs under http://{}:{}".format(http_host, http_port))
-        print("Websocket server runs under ws://{}:{}".format(http_host, http_port))
+        print("HTTP server runs under http://{}:{}".format(self.http_host, self.http_port))
+        print("Websocket server runs under ws://{}:{}".format(self.http_host, self.http_port))
         h = self._webserver.make_handler()
-        f = self._loop.create_server(h, http_host, http_port)
+        f = self._loop.create_server(h, self.http_host, self.http_port)
         self._loop.run_until_complete(f)
 
-        if self._args.mqtt_url:
+        if self.mqtt_url:
             from senlib.mqtt import Publisher
-            mqtt_url, mqtt_topic = self._args.mqtt_url, self._args.mqtt_topic
 
-            if not mqtt_topic:
-                mqtt_topic = 'sensor/{}'.format(self._sensor.DRIVER_NAME)
+            if not self.mqtt_topic:
+                self.mqtt_topic = 'sensor/{}'.format(self._sensor.DRIVER_NAME)
 
-            self._publisher = Publisher(mqtt_url, mqtt_topic)
+            self._publisher = Publisher(self.mqtt_url, self.mqtt_topic)
             async def connect():
                 code = await self._publisher.connect()
                 if code == 0:
-                    print("Connected to MQTT broker {}".format(mqtt_url))
-                    print("Publish data under topic {}".format(mqtt_topic))
+                    print("Connected to MQTT broker {}".format(self.mqtt_url))
+                    print("Publish data under topic {}".format(self.mqtt_topic))
 
             asyncio.ensure_future(connect())
 
@@ -222,9 +223,12 @@ class SensorNode(Application):
                 help='Set MQTT URL broker address.', default='')
         self._parser.add_argument('-t', '--mqtt-topic', type=str, dest='mqtt_topic', 
                 help='Set MQTT topic.', default='')
+        self._parser.add_argument('-n', '--node', type=str, dest='node', 
+                help='Set node name', default=platform.node())
  
     def _handle_data(self, data):
         data['timestamp'] = time.time()
+        data['node'] = self.node
         if self._webserver:
             self._webserver.broadcast(data)
         

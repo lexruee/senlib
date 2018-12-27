@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-sennode bme280 -a 0x77 -b 1  
+sennode bme280 i2c://1/0x77

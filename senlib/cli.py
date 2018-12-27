@@ -12,7 +12,7 @@ from datetime import datetime
 from senlib import logger
 from senlib.i2c import DriverNotFound
 from senlib.i2c import get_sensor_driver
-from senlib.core.i2c import SMBus
+from senlib.core.i2c import SMBus, AddressParser
 import asyncio
 import time
 import sys
@@ -24,6 +24,7 @@ class Application:
     DESCRIPTION = ''
 
     def __init__(self, loop=None, client=None):
+        self._i2c_addr_parser = AddressParser()
         self._loop = loop or asyncio.get_event_loop()
         self._parser = argparse.ArgumentParser(description=self.DESCRIPTION)
         self._add_base_arguments()
@@ -40,20 +41,21 @@ class Application:
         if self._args.debug:
             logging.basicConfig(level=logging.DEBUG)
     
-        self._i2caddr = int(self._args.addr, 0) if self._args.addr else None
 
         if self._args.debug:
             logging.basicConfig(level=logging.DEBUG)
 
         self._loop = asyncio.get_event_loop()
+        i2c_bus, i2c_addr = self._i2c_addr_parser.parse(self._args.address)
+
         if self._args.mock:
             from senlib.mock import Sensor
             self._sensor = Sensor()
         else:
             try:
-                i2c_ctrl = SMBus(bus=self._args.bus)
+                i2c_ctrl = SMBus(bus=i2c_bus)
                 driver_class = get_sensor_driver(name=self._args.sensor)
-                self._sensor = driver_class(i2c_ctrl, self._i2caddr or driver_class.default_addr())
+                self._sensor = driver_class(i2c_ctrl, i2c_addr or driver_class.default_addr())
 
             except DriverNotFound as e:
                 print(e)
@@ -63,14 +65,11 @@ class Application:
         self._parser.add_argument('--version', action='version', version='%(prog)s {}'
                 .format(__version__), help='Print version number.')
         
-        self._parser.add_argument('sensor', help='Set I2C sensor driver.')
+        self._parser.add_argument('sensor', help='I2C sensor driver')
         self._parser.add_argument('--mock', dest='mock', help='Use a mock sensor.', 
                 action='store_true')
 
-        self._parser.add_argument('-a', '--address', type=str, dest='addr', 
-            help='Set I2C address.')
-        self._parser.add_argument('-b', '--bus', type=int, dest='bus', help='Set I2C bus.', 
-                default=1)
+        self._parser.add_argument('address', type=str, help='I2C address')
         self._parser.add_argument('-d', '--debug', dest='debug', help='Start debug mode.',
                 action='store_true')
       

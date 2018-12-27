@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 
 __author__ = 'Alexander Rüedlinger'
-__all__ = ('SMBus')
+__all__ = ('SMBus', 'AddressParser')
 
 import struct
 import fcntl
 import io
 from collections import deque
+from urllib.parse import urlparse
+import re
 import logging
 logger = logging.getLogger('i2c')
 
@@ -295,3 +297,24 @@ class Sensor(Device):
 
     def measure(self):
         return {}
+
+
+class AddressParser:
+
+    def parse(self, address):
+        parse_result = urlparse(address)
+        bus = int(parse_result.netloc)
+        addr = self._addr_to_int(parse_result.path[1:])
+
+        return (bus, addr)
+
+    def _addr_to_int(self, addr_str):
+        addr = None
+        if re.match('0[xX]', addr_str):
+            addr = int(addr_str, 16)
+        else:
+            addr = int(addr_str)
+
+        return addr
+
+

@@ -24,7 +24,8 @@ REQUIRED = [
     'smbus-cffi',
     'aiohttp',
     'hbmqtt',
-    'dicttoxml'
+    'dicttoxml',
+    'click'
 ]
 
 # The rest you shouldn't have to touch too much :)

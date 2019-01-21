@@ -20,6 +20,8 @@ from senlib.mock import Sensor as MockSensor
 from senlib.i2c import DriverNotFound
 from senlib.i2c import get_sensor_driver
 from senlib.core.i2c import SMBus, AddressParser
+from senlib.web import WebServer
+from senlib.mqtt import Publisher
 
 
 class AsyncioApp:
@@ -145,5 +147,62 @@ class SenlibCli(AsyncioApp):
 
 class SennodeCli(AsyncioApp):
     """ SennodeCLI is an Asyncio-based CLI sensor node application. """
-    pass
+
+    def _after_init(self):
+        self._webserver = None
+        self._publisher = None
+
+        if self._config.http:
+            self._webserver = WebServer(self._config.interval, self._loop, self._sensor)
+
+        if self._config.mqtt_broker_url:
+            self.mqtt_topic = self._config.mqtt_topic
+            if not self.mqtt_topic:
+                self.mqtt_topic = 'sensor/{}'.format(self._sensor.DRIVER_NAME)
+
+            self._publisher = Publisher(self._config.mqtt_broker_url, self.mqtt_topic)
+
+    def _publish_data(self, data):
+        data['timestamp'] = time.time()
+        data['node'] = self._config.node or platform.node()
+        if self._webserver:
+            self._webserver.broadcast(data)
+        
+        if self._publisher:
+            self._publisher.publish(data)
+
+    def _start(self):
+        print("Enter Ctrl-C to exit.")
+
+        if self._webserver:
+            print("HTTP server runs under http://{}:{}".format(self._config.http_host, 
+                self._config.http_port))
+            print("Websocket server runs under ws://{}:{}".format(self._config.http_host, 
+                self._config.http_port))
+
+            h = self._webserver.make_handler()
+            f = self._loop.create_server(h, self._config.http_host, self._config.http_port)
+            self._loop.run_until_complete(f)
+
+        if self._publisher:
+            async def connect():
+                code = await self._publisher.connect()
+                if code == 0:
+                    print("Connected to MQTT broker {}".format(self._config.mqtt_broker_url))
+                    print("Publish data under topic {}".format(self.mqtt_topic))
+
+            asyncio.ensure_future(connect())
+
+        def callback():
+            logger.debug('callback')
+            sensor_data = self._sensor.measure()
+            self._publish_data(sensor_data)
+            self._loop.call_later(self._config.interval, callback)
+                        
+        self._loop.call_soon(callback)
+
+
+    def _after_stop(self):
+        if self._publisher:
+            self._publisher.disconnect()
 

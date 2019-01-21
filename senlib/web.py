@@ -41,6 +41,7 @@ class Handler:
         return data
 
     async def broadcast(self, data):
+        logger.debug('broadcast data to clients')
         for ws in self._clients:
             await ws.send_json(data)
     

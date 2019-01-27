@@ -74,41 +74,29 @@ sennode
 
 ::
 
-   usage: sennode [-h] [--version] [--mock] [-a ADDR] [-b BUS] [-d] [-i INTERVAL]
-                  [--http-address HTTP_ADDRESS] [--http-port HTTP_PORT]
-                  [--mqtt-url MQTT_URL] [-t MQTT_TOPIC]
-                  sensor
+   sennode --help
+   Usage: sennode [OPTIONS] SENSOR
 
-   sennode - Basic sensor node application for exposing an I2C sensor via HTTP,
-   WebSockets or MQTT
-
-   positional arguments:
-     sensor                Set I2C sensor driver.
-
-   optional arguments:
-     -h, --help            show this help message and exit
-     --version             Print version number.
-     --mock                Use a mock sensor.
-     -a ADDR, --address ADDR
-                           Set I2C address.
-     -b BUS, --bus BUS     Set I2C bus.
-     -d, --debug           Start debug mode.
-     -i INTERVAL, --interval INTERVAL
-                           Set sampling interval.
-     --http-address HTTP_ADDRESS
-                           Set HTTP address.
-     --http-port HTTP_PORT
-                           Set HTTP port.
-     --mqtt-url MQTT_URL   Set MQTT URL broker address.
-     -t MQTT_TOPIC, --mqtt-topic MQTT_TOPIC
-                           Set MQTT topic.
+   Options:
+     --address TEXT              I2C address of the sensor.
+     --node TEXT                 Node name.
+     --http                      Start Web API.
+     --http-host TEXT            HTTP host to use.
+     --http-port INTEGER         HTTP port to use.
+     -t, --mqtt-topic TEXT       MQTT topic to use.
+     --mqtt-broker-url TEXT      MQTT broker to publish data.
+     -i, --interval FLOAT        Sampling interval.
+     --mock, --fake, --simulate  Mock sensor.
+     -d, --debug                 Debug mode.
+     -V, --version               Show version.
+     --help                      Show this message and exit.
 
 Example Usage
 ^^^^^^^^^^^^^
 
 ::
 
-   sennode bme280 -a 0x77 -b 1 --mqtt-url mqtts://user:password@mqtt.xyz.ch:8883
+   sennode bme280 --address 'i2c://1/0x77' --mqtt-broker-url mqtts://user:password@mqtt.xyz.ch:8883
 
 Once started, the sensor data is exposed over an HTTP interface and a
 WebSocket interface:
@@ -127,32 +115,19 @@ senlib
 ::
 
    senlib --help
-   usage: senlib [-h] [--version] [--mock] [-a ADDR] [-b BUS] [-d] [-p [POLL]]
-                 [-i INTERVAL] [-f {json,xml,txt}] [--pretty-print] [-o OUTPUT]
-                 sensor
+   Usage: senlib [OPTIONS] SENSOR
 
-   senlib - Basic CLI for retrieving data for some I2C sensors.
-
-   positional arguments:
-     sensor                Set I2C sensor driver.
-
-   optional arguments:
-     -h, --help            show this help message and exit
-     --version             Print version number.
-     --mock                Use a mock sensor.
-     -a ADDR, --address ADDR
-                           Set I2C address.
-     -b BUS, --bus BUS     Set I2C bus.
-     -d, --debug           Start debug mode.
-     -p [POLL], --poll [POLL]
-                           Start polling loop.
-     -i INTERVAL, --interval INTERVAL
-                           Set sampling interval.
-     -f {json,xml,txt}, --format {json,xml,txt}
-                           Set output format.
-     --pretty-print        Use pretty print output format.
-     -o OUTPUT, --output OUTPUT
-                           Save output to a file.
+   Options:
+     --address TEXT              I2C address of the sensor.
+     -p, --poll INTEGER          Polls the sensor.
+     -i, --interval FLOAT        Sampling interval.
+     --output FILENAME           Save output to a file.
+     -f, --format TEXT           Output format to use.
+     --mock, --fake, --simulate  Mock sensor.
+     -d, --debug                 Debug mode.
+     --pretty-print, --pp        Pretty printing.
+     -V, --version               Show version.
+     --help                      Show this message and exit.
 
 .. _example-usage-1:
 
@@ -161,7 +136,7 @@ Example Usage
 
 ::
 
-   senlib bme280 -a 0x77 -b 1 -p -i 1
+   senlib bme280 --address 'i2c://1/0x77'
 
 Code Examples
 -------------

@@ -11,5 +11,9 @@ pytest = "*"
 senlib = {editable = true,path = "."}
 pytest = "*"
 click = "*"
+pyyaml = "*"
 
 [requires]
+
+[pipenv]
+allow_prereleases = true

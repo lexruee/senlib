@@ -4,14 +4,9 @@ __author__ = 'Alexander Rüedlinger'
 
 import logging
 import click
-from .app import SenlibCli 
-from .app import SennodeCli
+from .app import SenlibApp 
+from .app import SennodeApp
 from .__version__ import __version__
-
-# TODO
-# 1) senlib
-
-# 2) sennide
 
 def print_version(ctx, param, value):
     if not value or ctx.resilient_parsing:
@@ -33,7 +28,7 @@ def print_version(ctx, param, value):
 @click.option('--version', '-V', is_flag=True, callback=print_version, 
         expose_value=False, is_eager=True, help='Show version.')
 def senlib(**kwargs):
-    app = SenlibCli(kwargs)
+    app = SenlibApp(kwargs)
     app.run()
 
 
@@ -54,5 +49,5 @@ def senlib(**kwargs):
 @click.option('--version', '-V', is_flag=True, callback=print_version, 
         expose_value=False, is_eager=True, help='Show version.')
 def sennode(**kwargs):
-    app = SennodeCli(kwargs)
+    app = SennodeApp(kwargs)
     app.run()

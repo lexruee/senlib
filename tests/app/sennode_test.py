@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-from senlib.app import SennodeCli
+from senlib.app import SennodeApp
 
 
-def test_create_sennnodecli():
+def test_create_sennnodeapp():
     config = {
             'debug': False,
             'mock': True,
@@ -10,6 +10,6 @@ def test_create_sennnodecli():
             'interval': 1.0,
             'mqtt_broker_url': None,
     }
-    cli = SennodeCli(config)
-    assert cli is not None
+    app = SennodeApp(config)
+    assert app is not None
 

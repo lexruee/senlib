@@ -23,6 +23,8 @@ from senlib.core.i2c import SMBus, AddressParser
 from senlib.web import WebServer
 from senlib.mqtt import Publisher
 
+__all__ = ('AsyncioApp', 'SenlibApp', 'SennodeApp')
+
 
 class AsyncioApp:
     """ Base class for Asyncio-based CLI applications. """
@@ -89,8 +91,8 @@ class AsyncioApp:
             self._after_stop()
 
 
-class SenlibCli(AsyncioApp):
-    """ SenlibCli is an Asyncio-based CLI application. """
+class SenlibApp(AsyncioApp):
+    """ SenlibApp is an Asyncio-based application. """
 
     def _generate_output(self, sensor, sensor_data):
         data = OrderedDict()
@@ -145,8 +147,8 @@ class SenlibCli(AsyncioApp):
         self._loop.call_soon(callback, 1)
 
 
-class SennodeCli(AsyncioApp):
-    """ SennodeCLI is an Asyncio-based CLI sensor node application. """
+class SennodeApp(AsyncioApp):
+    """ SennodeCLI is an Asyncio-based sensor node application. """
 
     def _after_init(self):
         self._webserver = None

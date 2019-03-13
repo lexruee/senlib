@@ -39,8 +39,6 @@ def senlib(**kwargs):
 @click.option('--http', is_flag=True, help='Start Web API.')
 @click.option('--http-host', default='0.0.0.0', help='HTTP host to use.')
 @click.option('--http-port', default=8080, help='HTTP port to use.')
-#@click.option('--mqtt', is_flag=True, help='Start MQTT broker.')
-#@click.option('--mqtt-port', default=1883, help='MQTT port to use.')
 @click.option('--mqtt-topic', '-t', default=None, help='MQTT topic to use.')
 @click.option('--mqtt-broker-url','-L', help='MQTT broker to publish data.')
 @click.option('--interval', '-i', default=2.0, help='Sampling interval.')

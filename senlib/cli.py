@@ -42,7 +42,7 @@ def senlib(**kwargs):
 #@click.option('--mqtt', is_flag=True, help='Start MQTT broker.')
 #@click.option('--mqtt-port', default=1883, help='MQTT port to use.')
 @click.option('--mqtt-topic', '-t', default=None, help='MQTT topic to use.')
-@click.option('--mqtt-broker-url', help='MQTT broker to publish data.')
+@click.option('--mqtt-broker-url','-L', help='MQTT broker to publish data.')
 @click.option('--interval', '-i', default=2.0, help='Sampling interval.')
 @click.option('--mock','--fake','--simulate', is_flag=True, help='Mock sensor.')
 @click.option('--debug', '-d', is_flag=True, help='Debug mode.')

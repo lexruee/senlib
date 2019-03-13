@@ -84,7 +84,7 @@ sennode
      --http-host TEXT            HTTP host to use.
      --http-port INTEGER         HTTP port to use.
      -t, --mqtt-topic TEXT       MQTT topic to use.
-     --mqtt-broker-url TEXT      MQTT broker to publish data.
+     -L, --mqtt-broker-url TEXT  MQTT broker to publish data.
      -i, --interval FLOAT        Sampling interval.
      --mock, --fake, --simulate  Mock sensor.
      -d, --debug                 Debug mode.
